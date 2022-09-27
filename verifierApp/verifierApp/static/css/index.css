@@ -1,0 +1,20 @@
+footer {
+  position: fixed;
+  left: 0;
+  height: fit-content;
+  bottom: 0;
+  width: 100%;
+  background-color: white;
+  text-align: center;
+}
+
+a:hover {
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
+link {
+  text-decoration: none;
+}
