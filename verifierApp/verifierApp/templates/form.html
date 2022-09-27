@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form }}
+    <button id="verificar" type="submit" class="btn btn-primary">Verificar</button>
+    <button type="submit" class="btn btn-primary">Cargar en lote</button>
+</form>
+
+
+<div>
+    <table class="table table-borderless my-5">
+        <tr>
+            <th></th>
+            {% for browser in lista_browsers %}
+                <th>{{browser}}</th>
+            {% endfor %}
+        </tr>
+        {% for url, lista_browsers_colors in results %}
+            <tr>
+                <td class="align-middle">{{url}}</td>
+
+                {% for browser_colors in lista_browsers_colors %}
+                <td>
+                    {% for color in browser_colors%}
+                        <svg height="55" width="55">
+                        <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill={{color}} />
+                        </svg>
+                    {% endfor %}
+                </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% if display %}
+    <button class="btn btn-primary mb-5"><a href="{% url 'index' %}" style="text-decoration: none; color: aliceblue;">Limpiar todo</a></button>
+{% endif %}
+
+<footer>
+  <div class="container p-3">
+    <div class="row">
+      <div class="col-lg-4 col-md-12 mb-4 mb-md-0">
+        <a class="link" href="https://support.mozilla.org/en-US/kb/setting-certificate-authorities-firefox">Ver Mozilla Trust Store</a>
+      </div>
+      <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+        <a class="link" href="https://learn.microsoft.com/en-us/windows-hardware/drivers/install/certificate-stores">Ver Microsoft Trust Store</a>
+      </div>
+      <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+        <a class="link" href="#!">Ver Google Trust Store</a>
+      </div>
+    </div>
+  </div>
+</footer>
+{% endblock %}
