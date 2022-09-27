@@ -16,7 +16,7 @@ We activate the virtual environment.
 
 We install all the requirements from the 'requirements.txt' file.
 ```bash
-pip -r install requirements.txt
+pip install -r requirements.txt
 ```
 ## 3. Run app
 
