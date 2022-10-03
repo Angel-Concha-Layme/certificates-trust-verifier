@@ -10,8 +10,8 @@ from pprint import pprint
 #rq = requests.get('https://github.com', verify=True)
 
 #print(rq)
-
-serverHost = "www.google.com";
+url = 'www.facebook.com'
+serverHost = url;
 
 serverPort = "443";
 
@@ -21,7 +21,7 @@ serverAddress = (serverHost, serverPort);
 
 cert = ssl.get_server_certificate(serverAddress);
 
-print(cert);
+#print(cert);
 
 #x509 = M2Crypto.X509.load_cert_string(cert)
 #x509.get_subject().as_text()
@@ -29,7 +29,9 @@ print(cert);
 
 # OpenSSL
 x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
-print(x509.get_subject().get_components())
+print(x509.get_subject().get_components(), '--\n')
+
+
 
 def get_certificate(host, port=443, timeout=10):
     context = ssl.create_default_context()
@@ -43,7 +45,7 @@ def get_certificate(host, port=443, timeout=10):
     return ssl.DER_cert_to_PEM_cert(der_cert)
 
 
-certificate = get_certificate('www.google.com')
+certificate = get_certificate(url)
 x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, certificate)
 
 result = {
@@ -58,4 +60,4 @@ result = {
 extensions = (x509.get_extension(i) for i in range(x509.get_extension_count()))
 extension_data = {e.get_short_name(): str(e) for e in extensions}
 result.update(extension_data)
-pprint(result)
+pprint(result['notBefore'].strftime("%d/%m/%Y") + ' - ' + result['notAfter'].strftime("%d/%m/%Y"))
