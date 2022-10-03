@@ -29,7 +29,7 @@ cert = ssl.get_server_certificate(serverAddress);
 
 # OpenSSL
 x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
-print(x509.get_subject().get_components(), '--\n')
+print(x509.get_subject().get_components(), '\n--\n')
 
 
 
@@ -60,4 +60,8 @@ result = {
 extensions = (x509.get_extension(i) for i in range(x509.get_extension_count()))
 extension_data = {e.get_short_name(): str(e) for e in extensions}
 result.update(extension_data)
-pprint(result['notBefore'].strftime("%d/%m/%Y") + ' - ' + result['notAfter'].strftime("%d/%m/%Y"))
+pprint(result['notBefore'].strftime("%d/%m/%Y") + ' - ' + result['notAfter'].strftime("%d/%m/%Y")) # fechas
+cn = result['issuer']
+pprint(cn[b'O'].decode('UTF-8')) #Organizacion
+pprint(cn[b'CN'].decode('UTF-8')) #Nombre completo de organizacion
+pprint(result[b'keyUsage']) #uso de clave
