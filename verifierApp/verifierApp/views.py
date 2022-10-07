@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.contrib import messages
 
 from .forms import urlForm
-from .src.verify import get_results
+from .src.verify import get_results, is_valid_URL
 
 lista_urls = []
 lista_colors = []
@@ -16,21 +16,49 @@ def index(request):
   if request.method == 'POST':
     form = urlForm(request.POST)
     if form.is_valid():
+
+      # Obteniendo URL como string
       url_string = form.cleaned_data['url']
-      lista_urls.insert(0, url_string)
 
-      lista_browsers_colors = get_results(url_string) # aqui va funcion que verifica los certificados
-      lista_colors.insert(0, lista_browsers_colors)
+      # validación de URL
+      valid_url, response = is_valid_URL(url_string)
 
-      results = zip(lista_urls, lista_colors)
-      context = {'form': form,
-                  'lista_browsers':lista_browsers,
-                  'results':results,
-                  'display': display}
+      # si es válida y existe la URL
+      if valid_url == True:
+        lista_urls.insert(0, url_string)
+
+         # Funcion que verifica el nivel de confianza
+        lista_browsers_colors = get_results(url_string)
+        lista_colors.insert(0, lista_browsers_colors)
+
+        # para mostrar el nivel de confianza con colores
+        results = zip(lista_urls, lista_colors)
+        context = {'form': form,
+                    'lista_browsers':lista_browsers,
+                    'results':results,
+                    'display': display}
+      # si no es válida y no existe la URL
+      else:
+        # Para mostrar mensajes de error
+        messages.add_message(request, messages.ERROR, response)
+
+        # si la lista de URLs esta vacia
+        if len(lista_urls) == 0:
+          display = False
+          context = {'form': form,
+                      'display': display}
+        # si la lista de URLs no esta vacia
+        else:
+          results = zip(lista_urls, lista_colors)
+          context = {'form': form,
+                      'lista_browsers':lista_browsers,
+                      'results':results,
+                      'display': display}
       return render(request, 'form.html', context)
   else:
     lista_urls = []
     lista_colors = []
     display = False
     form = urlForm()
-  return render(request, 'form.html', {'form': form, 'display': display})
+    context = {'form': form, 'display': display}
+    return render(request, 'form.html', context)

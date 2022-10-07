@@ -1,4 +1,8 @@
 venv/
 verifierApp/verifierApp/__pycache__/
 verifierApp/db.sqlite3
+<<<<<<< HEAD
 practica.py
+=======
+verifierApp/verifierApp/src/__pycache__/
+>>>>>>> cd3219abe475a848f62b3770ffd71b32c77e21bb
