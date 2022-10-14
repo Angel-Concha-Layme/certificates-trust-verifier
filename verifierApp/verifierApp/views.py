@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib import messages
 
 from .forms import urlForm
@@ -55,10 +55,75 @@ def index(request):
                       'results':results,
                       'display': display}
       return render(request, 'form.html', context)
-  else:
-    lista_urls = []
-    lista_colors = []
-    display = False
+  elif request.method == 'GET':
     form = urlForm()
-    context = {'form': form, 'display': display}
+    results = zip(lista_urls, lista_colors)
+
+    if len(lista_urls) == 0:
+      display = False
+      context = {'form': form, 'display': display}
+    else:
+      display = True
+      context = {'form': form,
+                'lista_browsers':lista_browsers,
+                'results':results,
+                'display': display}
     return render(request, 'form.html', context)
+
+def clean(request):
+  global lista_colors
+  global lista_urls
+  lista_urls = []
+  lista_colors = []
+  return redirect('index')
+
+def google_trust_Store(request):
+  certificates = [{
+    'Nombre': 'Entrust',
+    'Validez': '12/10/22 - 10/20/30',
+    'Usos de la llave': 'RSA - 4096',
+    'Digital Signature': 'Digital Signature',
+    'SHA-1': '3453DFGDG43GG'
+  },
+  {
+    'Nombre': 'Entrust',
+    'Validez': '12/10/22 - 10/20/30',
+    'Usos de la llave': 'RSA - 4096',
+    'Digital Signature': 'Digital Signature',
+    'SHA-1': '3453DFGDG43GG'
+  }]
+  return render(request, "google_trust_store/google_trust_store.html", {'certificates': certificates})
+
+def microsoft_trust_Store(request):
+  certificates = [{
+    'Nombre': 'Entrust',
+    'Validez': '12/10/22 - 10/20/30',
+    'Usos de la llave': 'RSA - 4096',
+    'Digital Signature': 'Digital Signature',
+    'SHA-1': '3453DFGDG43GG'
+  },
+  {
+    'Nombre': 'Entrust',
+    'Validez': '12/10/22 - 10/20/30',
+    'Usos de la llave': 'RSA - 4096',
+    'Digital Signature': 'Digital Signature',
+    'SHA-1': '3453DFGDG43GG'
+  }]
+  return render(request, "microsoft_trust_store/microsoft_trust_store.html", {'certificates': certificates})
+
+def mozilla_trust_Store(request):
+  certificates = [{
+    'Nombre': 'Entrust',
+    'Validez': '12/10/22 - 10/20/30',
+    'Usos de la llave': 'RSA - 4096',
+    'Digital Signature': 'Digital Signature',
+    'SHA-1': '3453DFGDG43GG'
+  },
+  {
+    'Nombre': 'Entrust',
+    'Validez': '12/10/22 - 10/20/30',
+    'Usos de la llave': 'RSA - 4096',
+    'Digital Signature': 'Digital Signature',
+    'SHA-1': '3453DFGDG43GG'
+  }]
+  return render(request, "mozilla_trust_store/mozilla_trust_store.html", {'certificates': certificates})
