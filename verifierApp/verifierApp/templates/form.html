@@ -3,6 +3,9 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+
+<h1 class="text-center my-5">Digital Certificates Trust Verifier</h1>
+
 <form method="post">
     {% csrf_token %}
     {{ form }}
@@ -45,20 +48,20 @@
     </table>
 </div>
 {% if display %}
-    <button class="btn btn-primary mb-5"><a href="{% url 'index' %}" style="text-decoration: none; color: aliceblue;">Limpiar todo</a></button>
+    <button class="btn btn-primary mb-5"><a href="{% url 'clean' %}" style="text-decoration: none; color: aliceblue;">Limpiar todo</a></button>
 {% endif %}
 
 <footer>
   <div class="container p-3">
     <div class="row">
       <div class="col-lg-4 col-md-12 mb-4 mb-md-0">
-        <a class="link" href="https://support.mozilla.org/en-US/kb/setting-certificate-authorities-firefox">Ver Mozilla Trust Store</a>
+        <a class="link" href="{% url 'mozilla_trust_Store' %}">Ver Mozilla Trust Store</a>
       </div>
       <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
-        <a class="link" href="https://learn.microsoft.com/en-us/windows-hardware/drivers/install/certificate-stores">Ver Microsoft Trust Store</a>
+        <a class="link" href="{% url 'microsoft_trust_Store' %}">Ver Microsoft Trust Store</a>
       </div>
       <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
-        <a class="link" href="#!">Ver Google Trust Store</a>
+        <a class="link" href="{% url 'google_trust_Store' %}">Ver Google Trust Store</a>
       </div>
     </div>
   </div>
