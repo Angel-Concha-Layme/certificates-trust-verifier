@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<h1 class="text-center my-5">Google Trust Store Certificates</h1>
+
+
+<table class="table table-borderless my-5">
+  <tr>
+    <th>Nombre</th>
+    <th>Validez</th>
+    <th>Llave pública</th>
+    <th>Usos de la llave</th>
+    <th>Sha-1</th>
+  </tr>
+  {% for cert in certificates %}
+      <tr>
+          {% for data in cert.values %}
+          <td>{{data}}</td>
+          {% endfor %}
+      </tr>
+  {% endfor %}
+</table>
+
+<footer>
+  <button class="btn btn-primary mb-5"><a href="{% url 'index' %}" style="text-decoration: none; color: aliceblue;">Regresar</a></button>
+</footer>
+{% endblock %}
