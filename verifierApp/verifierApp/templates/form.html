@@ -10,9 +10,30 @@
     {% csrf_token %}
     {{ form }}
     <button id="verificar" type="submit" class="btn btn-primary">Verificar</button>
-    <button type="submit" class="btn btn-primary">Cargar en lote</button>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Cargar en lote</button>
 </form>
 
+<form enctype="multipart/form-data" action={% url 'upload_file' %} method="post">
+<!-- Modal -->
+{% csrf_token %}
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Subir archivo</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input accept=".txt" name="file" type="file" class="form-control" id="customFile"/>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Verificar</button>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
 
 <div>
   {% if messages %}

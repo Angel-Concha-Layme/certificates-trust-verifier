@@ -37,3 +37,28 @@ def is_valid_URL(url):
     print(response)
     is_valid = False
   return is_valid, response
+
+
+def get_file_valid_urls(file_urls):
+  '''
+  Función que valida URLs del archivo y almacena solo aquellas que son válidas
+  '''
+  list_file_urls = []
+  list_file_colors = []
+  counter = 1
+  for url in file_urls:
+    # validación de URL
+    valid_url, response = is_valid_URL(url)
+
+    # si es válida y existe la URL
+    if valid_url == True:
+      list_file_urls.insert(0, url)
+
+      # Funcion que verifica el nivel de confianza
+      lista_browsers_colors = get_results(url)
+      list_file_colors.insert(0, lista_browsers_colors)
+    else:
+      # Para mostrar mensajes de error
+      print("URL #", counter, " inválida")
+    counter += 1
+  return list_file_urls, list_file_colors

@@ -3,11 +3,13 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 
 from .forms import urlForm
-from .src.verify import get_results, is_valid_URL
+from .src.verify import get_results, is_valid_URL, get_file_valid_urls
 
 lista_urls = []
 lista_colors = []
 lista_browsers = ['Microsoft Edge', 'Google Chrome', 'Mozilla Firefox']
+display = True
+
 
 def index(request):
   global lista_colors
@@ -55,13 +57,16 @@ def index(request):
                       'results':results,
                       'display': display}
       return render(request, 'form.html', context)
+
   elif request.method == 'GET':
     form = urlForm()
     results = zip(lista_urls, lista_colors)
 
+    # si la lista de URLs esta vacía
     if len(lista_urls) == 0:
       display = False
       context = {'form': form, 'display': display}
+    # si la lista de URLs NO esta vacía
     else:
       display = True
       context = {'form': form,
@@ -69,6 +74,30 @@ def index(request):
                 'results':results,
                 'display': display}
     return render(request, 'form.html', context)
+
+def upload_file(request):
+  global lista_colors
+  global lista_urls
+  global display
+  if request.method == 'POST':
+
+    # leemos el archivo y lo obtenemos en bytes
+    file_urls = request.FILES['file'].readlines()
+
+    # decodificamoes y limpiamos la data
+    file_urls = [ url.decode("utf-8").replace('\n','') for url in file_urls ]
+
+    # obtenemos las urls válidas del archivo y sus colores respectivos
+    urls, colors = get_file_valid_urls(file_urls)
+
+    # agregamos a las listas resultantes
+    lista_urls = urls + lista_urls
+    lista_colors = colors + lista_colors
+
+    if len(lista_urls) > 0:
+      display = True
+
+  return redirect('index')
 
 def clean(request):
   global lista_colors
