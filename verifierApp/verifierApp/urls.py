@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('clean/', views.clean, name='clean'),
+    path('upload_file/', views.upload_file, name='upload_file'),
     path('google_trust_Store/', views.google_trust_Store,name='google_trust_Store'),
     path('microsoft_trust_Store/',views.microsoft_trust_Store,name='microsoft_trust_Store'),
     path('mozilla_trust_Store/',views.mozilla_trust_Store,name='mozilla_trust_Store'),
