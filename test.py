@@ -47,11 +47,11 @@ def get_x509(cert):
     return result
 
 def print_components(x509):
-    pprint(result['notBefore'].strftime("%d/%m/%Y") + ' - ' + result['notAfter'].strftime("%d/%m/%Y")) # fechas
-    cn = result['issuer']
+    pprint(x509['notBefore'].strftime("%d/%m/%Y") + ' - ' + x509['notAfter'].strftime("%d/%m/%Y")) # fechas
+    cn = x509['issuer']
     pprint(cn[b'O'].decode('UTF-8')) #Organizacion
     pprint(cn[b'CN'].decode('UTF-8')) #Nombre completo de organizacion
-    pprint(result['keyUsage']) #uso de clave
+    pprint(x509['keyUsage']) #uso de clave
 
 certificate = get_certificate(url)
 print(certificate)
