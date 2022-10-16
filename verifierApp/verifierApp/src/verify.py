@@ -98,6 +98,7 @@ def read_pem_certificates(file):
                 "valid_before": cert.not_valid_before.strftime("%Y-%m-%d"),
                 "valid_after": cert.not_valid_after.strftime("%Y-%m-%d"),
                 "Public Key Algorithm": Public_Key_Algorithm_format,
+                "key usage": 'Digital Signature',
                 "SHA-1": (':'.join(cert.fingerprint(hashes.SHA1()).hex().upper()[i:i+2] for i in range(0, len(cert.fingerprint(hashes.SHA1()).hex().upper()), 2)))
 
             }
@@ -117,6 +118,7 @@ def read_csv_certificates(file):
                 "valid_before": valid_before,
                 "valid_after": valid_after,
                 "Public Key Algorithm": line[6],
+                "key usage": line[8].replace(';', ','),
                 "SHA-1": (':'.join(line[2].upper()[i:i+2] for i in range(0, len(line[2].upper()), 2)))
             }
             certs_array.append(cert_dict)
@@ -131,7 +133,7 @@ def structure_trust_store(certificates):
     certificate_dic = {'Common name':certificate['Common name'],
                       'validity': certificate['valid_before'] + " - " + certificate['valid_after'],
                       'Public Key Algorithm': certificate['Public Key Algorithm'],
-                      'key-usage': 'Digital Signature',
+                      'key-usage': certificate['key usage'],
                       'SHA-1': certificate['SHA-1']}
     certificates_list.append(certificate_dic)
   return certificates_list
