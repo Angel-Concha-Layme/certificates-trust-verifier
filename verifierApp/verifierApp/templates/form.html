@@ -38,13 +38,13 @@
 <div>
   {% if messages %}
     {% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+        <div class="alert {{ message.tags }} alert-dismissible fade show mt-2" style="margin-left: 19.5%; margin-right: 19.5%;" role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     {% endfor %}
   {% endif %}
-    <table class="table table-borderless my-5">
+    <table class="table table-borderless my-3 mx-auto" style="width: 90%;">
         <tr>
             <th></th>
             {% for browser in lista_browsers %}
@@ -53,15 +53,22 @@
         </tr>
         {% for url, lista_browsers_colors in results %}
             <tr>
-                <td class="align-middle">{{url}}</td>
+                <td class="text-start"><a href="{{ url }}" target="_blank">{{url}}</a></td>
 
                 {% for browser_colors in lista_browsers_colors %}
                 <td>
-                    {% for color in browser_colors%}
-                        <svg height="55" width="55">
-                        <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill={{color}} />
-                        </svg>
-                    {% endfor %}
+                  <svg height="55" width="55">
+                  <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill={{ browser_colors.0 }} />
+                  </svg>
+
+                  <svg height="55" width="55">
+                  <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill={{ browser_colors.1 }} />
+                  </svg>
+
+                  <svg height="55" width="55">
+                  <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill={{ browser_colors.2 }} />
+                  </svg>
+
                 </td>
                 {% endfor %}
             </tr>
