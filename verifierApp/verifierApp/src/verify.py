@@ -17,44 +17,30 @@ def get_certificate(host, port=443, timeout=10):
         sock.close()
     return ssl.DER_cert_to_PEM_cert(der_cert)
 
-
+def get_x509(cert):
+    x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)# lee una cadena pem
+    result = {
+        'subject': dict(x509.get_subject().get_components()),
+        'issuer': dict(x509.get_issuer().get_components()),
+        'serialNumber': x509.get_serial_number(),
+        'version': x509.get_version(),
+        'notBefore': datetime.strptime(x509.get_notBefore().decode('ascii'), '%Y%m%d%H%M%SZ'),
+        'notAfter': datetime.strptime(x509.get_notAfter().decode('ascii'), '%Y%m%d%H%M%SZ'),
+    }
+    extensions = (x509.get_extension(i) for i in range(x509.get_extension_count()))
+    extension_data = {e.get_short_name().decode('UTF-8'): str(e) for e in extensions}
+    result.update(extension_data)
+    return result
 
 def get_results(url):
-<<<<<<< HEAD
-  #serverHost = url
-  #serverPort = "443"
-  #serverAddress = (serverHost, serverPort)
-
-  #cert = ssl.get_server_certificate(serverAddress)
-
-  #print(cert)
-
   certificate = get_certificate(url)
-  x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, certificate)
-  #print(x509.get_subject().get_components())
-  result = {
-    'subject': dict(x509.get_subject().get_components()),
-    'issuer': dict(x509.get_issuer().get_components()),
-    'serialNumber': x509.get_serial_number(),
-    'version': x509.get_version(),
-    'notBefore': datetime.strptime(x509.get_notBefore().decode('ascii'), '%Y%m%d%H%M%SZ'),
-    'notAfter': datetime.strptime(x509.get_notAfter().decode('ascii'), '%Y%m%d%H%M%SZ'),
-  }
-
-  extensions = (x509.get_extension(i) for i in range(x509.get_extension_count()))
-  extension_data = {e.get_short_name(): str(e) for e in extensions}
-  result.update(extension_data)
-  pprint(result['notBefore'].strftime("%d/%m/%Y") + ' - ' + result['notAfter'].strftime("%d/%m/%Y")) # fechas
-  cn = result['issuer']
+  x509 = get_x509(certificate)
+  pprint(x509['notBefore'].strftime("%d/%m/%Y") + ' - ' + x509['notAfter'].strftime("%d/%m/%Y")) # fechas
+  cn = x509['issuer']
   pprint(cn[b'O'].decode('UTF-8')) #Organizacion
   pprint(cn[b'CN'].decode('UTF-8')) #Nombre completo de organizacion
-  pprint(result[b'keyUsage']) #uso de clave
+  pprint(x509[b'keyUsage']) #uso de clave
   
-  results = [random.sample(['red', 'white' ,'white', 'white'],4),
-            random.sample(['white', 'white' ,'green', 'white'],4),
-            random.sample(['white', 'green' ,'white', 'white'],4)]
-  return results
-=======
   '''
   Función que analiza y permite visualizar el nivel de confianza del
   certificado digital de la URL ingresada
@@ -90,4 +76,3 @@ def is_valid_URL(url):
     print(response)
     is_valid = False
   return is_valid, response
->>>>>>> cd3219abe475a848f62b3770ffd71b32c77e21bb

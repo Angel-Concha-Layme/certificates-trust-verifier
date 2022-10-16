@@ -3,35 +3,22 @@ import OpenSSL
 import socket
 from datetime import datetime
 from pprint import pprint
-#import M2Crypto
 # Server address
 
 #import requests
 #rq = requests.get('https://github.com', verify=True)
 
 #print(rq)
-url = 'www.facebook.com'
+url = 'www.google.com'
 serverHost = url;
-
 serverPort = "443";
-
 serverAddress = (serverHost, serverPort);
 
 # Retrieve the server certificate in PEM format
-
-cert = ssl.get_server_certificate(serverAddress);
-
+#cert = ssl.get_server_certificate(serverAddress);
 #print(cert);
-
-#x509 = M2Crypto.X509.load_cert_string(cert)
-#x509.get_subject().as_text()
-# 'C=US, ST=California, L=Mountain View, O=Google Inc, CN=www.google.com'
-
-# OpenSSL
-x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
-print(x509.get_subject().get_components(), '\n--\n')
-
-
+#x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
+#print(x509.get_subject().get_components(), '\n--\n')
 
 def get_certificate(host, port=443, timeout=10):
     context = ssl.create_default_context()
@@ -44,24 +31,37 @@ def get_certificate(host, port=443, timeout=10):
         sock.close()
     return ssl.DER_cert_to_PEM_cert(der_cert)
 
+def get_x509(cert):
+    x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)# lee una cadena pem
+    result = {
+        'subject': dict(x509.get_subject().get_components()),
+        'issuer': dict(x509.get_issuer().get_components()),
+        'serialNumber': x509.get_serial_number(),
+        'version': x509.get_version(),
+        'notBefore': datetime.strptime(x509.get_notBefore().decode('ascii'), '%Y%m%d%H%M%SZ'),
+        'notAfter': datetime.strptime(x509.get_notAfter().decode('ascii'), '%Y%m%d%H%M%SZ'),
+    }
+    extensions = (x509.get_extension(i) for i in range(x509.get_extension_count()))
+    extension_data = {e.get_short_name().decode('UTF-8'): str(e) for e in extensions}
+    result.update(extension_data)
+    return result
+
+def print_components(x509):
+    pprint(result['notBefore'].strftime("%d/%m/%Y") + ' - ' + result['notAfter'].strftime("%d/%m/%Y")) # fechas
+    cn = result['issuer']
+    pprint(cn[b'O'].decode('UTF-8')) #Organizacion
+    pprint(cn[b'CN'].decode('UTF-8')) #Nombre completo de organizacion
+    pprint(result['keyUsage']) #uso de clave
 
 certificate = get_certificate(url)
-x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, certificate)
+print(certificate)
 
-result = {
-    'subject': dict(x509.get_subject().get_components()),
-    'issuer': dict(x509.get_issuer().get_components()),
-    'serialNumber': x509.get_serial_number(),
-    'version': x509.get_version(),
-    'notBefore': datetime.strptime(x509.get_notBefore().decode('ascii'), '%Y%m%d%H%M%SZ'),
-    'notAfter': datetime.strptime(x509.get_notAfter().decode('ascii'), '%Y%m%d%H%M%SZ'),
-}
+#print(x509.digest('sha256').decode())
+#print(f"pubkey: {x509.get_pubkey().type()}")
 
-extensions = (x509.get_extension(i) for i in range(x509.get_extension_count()))
-extension_data = {e.get_short_name(): str(e) for e in extensions}
-result.update(extension_data)
-pprint(result['notBefore'].strftime("%d/%m/%Y") + ' - ' + result['notAfter'].strftime("%d/%m/%Y")) # fechas
-cn = result['issuer']
-pprint(cn[b'O'].decode('UTF-8')) #Organizacion
-pprint(cn[b'CN'].decode('UTF-8')) #Nombre completo de organizacion
-pprint(result[b'keyUsage']) #uso de clave
+result = get_x509(certificate)
+
+pprint(result)
+
+#ver jerarquia de certificados por linea de comandos
+#openssl s_client -showcerts -connect www.serverfault.com:443
