@@ -1,13 +1,15 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib import messages
 
 from .forms import urlForm
-from .src.verify import get_results, is_valid_URL
+from .src.verify import get_results, is_valid_URL, get_trust_stores
 
 lista_urls = []
 lista_colors = []
 lista_browsers = ['Microsoft Edge', 'Google Chrome', 'Mozilla Firefox']
+
+microsoft_store, google_store, mozilla_store = get_trust_stores()
 
 def index(request):
   global lista_colors
@@ -55,10 +57,33 @@ def index(request):
                       'results':results,
                       'display': display}
       return render(request, 'form.html', context)
-  else:
-    lista_urls = []
-    lista_colors = []
-    display = False
+  elif request.method == 'GET':
     form = urlForm()
-    context = {'form': form, 'display': display}
+    results = zip(lista_urls, lista_colors)
+
+    if len(lista_urls) == 0:
+      display = False
+      context = {'form': form, 'display': display}
+    else:
+      display = True
+      context = {'form': form,
+                'lista_browsers':lista_browsers,
+                'results':results,
+                'display': display}
     return render(request, 'form.html', context)
+
+def clean(request):
+  global lista_colors
+  global lista_urls
+  lista_urls = []
+  lista_colors = []
+  return redirect('index')
+
+def google_trust_Store(request):
+  return render(request, "google_trust_store/google_trust_store.html", {'certificates': google_store})
+
+def microsoft_trust_Store(request):
+  return render(request, "microsoft_trust_store/microsoft_trust_store.html", {'certificates': microsoft_store})
+
+def mozilla_trust_Store(request):
+  return render(request, "mozilla_trust_store/mozilla_trust_store.html", {'certificates': mozilla_store})
