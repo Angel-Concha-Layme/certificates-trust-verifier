@@ -130,7 +130,10 @@ def upload_file(request):
         message_response = "Todas las URLs han sido procesadas exitosamente"
     else:
       display_error = True
-      message_response = "Todas las URLs son inválidas"
+      if len(file_urls) == 0:
+        message_response = "No se ha leído ninguna URL"
+      else:
+        message_response = "Todas las URLs son inválidas"
 
   return redirect('index')
 
