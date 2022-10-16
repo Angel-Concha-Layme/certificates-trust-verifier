@@ -36,21 +36,31 @@ def get_x509(cert): # un solo PEM
     result.update(extension_data)
     return result
 
+def print_certchain_props(certchain):
+    for pos, cert in enumerate(certchain):
+        print("Certificate #" + str(pos))
+        for component in cert.get_subject().get_components():
+            print("Subject %s: %s" % (component))
+        datefrom = datetime.strptime(cert.get_notBefore().decode('ascii'), '%Y%m%d%H%M%SZ')
+        dateto = datetime.strptime(cert.get_notAfter().decode('ascii'), '%Y%m%d%H%M%SZ')
+        print("notBefore:" + datefrom.strftime("%d/%m/%Y"))
+        print("notAfter:" + dateto.strftime("%d/%m/%Y"))
+        print("version:" + str(cert.get_version()))
+        print("sigAlg:" + cert.get_signature_algorithm().decode('utf-8'))
+        print("digest:" + cert.digest('sha256').decode('utf-8'))
+        print("serial number:" + str(cert.get_serial_number()))
+
+def get_root_cert(certchain):
+    return certchain[2]
+
+def get_serial_number(cert):
+    return str(cert.get_serial_number())
+
 url = 'www.google.com'
 apem, certchain = getPEMFile(url, 443)
-x509 = get_x509(apem)
+#x509 = get_x509(apem)
 #print(apem)
-print(certchain)
-for pos, cert in enumerate(certchain):
-    print("Certificate #" + str(pos))
-    for component in cert.get_subject().get_components():
-       print("Subject %s: %s" % (component))
-    datefrom = datetime.strptime(cert.get_notBefore().decode('ascii'), '%Y%m%d%H%M%SZ')
-    dateto = datetime.strptime(cert.get_notAfter().decode('ascii'), '%Y%m%d%H%M%SZ')
-    print("notBefore:" + datefrom.strftime("%d/%m/%Y"))
-    print("notAfter:" + dateto.strftime("%d/%m/%Y"))
-    print("version:" + str(cert.get_version()))
-    print("sigAlg:" + cert.get_signature_algorithm().decode('utf-8'))
-    print("digest:" + cert.digest('sha256').decode('utf-8'))
-    print("serial number:" + str(cert.get_serial_number()))
+root = get_root_cert(certchain)
+sn = get_serial_number(root)
+print(sn)
 #print(x509)
