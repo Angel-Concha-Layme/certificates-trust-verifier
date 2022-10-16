@@ -1,11 +1,14 @@
 import requests
 import random
-<<<<<<< HEAD
 import ssl
 import OpenSSL
 import socket
 from datetime import datetime
 from pprint import pprint
+
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
 
 def get_certificate(host, port=443, timeout=10):
     context = ssl.create_default_context()
@@ -32,11 +35,6 @@ def get_x509(cert):
     extension_data = {e.get_short_name().decode('UTF-8'): str(e) for e in extensions}
     result.update(extension_data)
     return result
-=======
-from cryptography import x509
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes
->>>>>>> 3a4f6ae27643339494f204e63d55edf8176941aa
 
 def get_results(url):
   certificate = get_certificate(url)
@@ -82,8 +80,6 @@ def is_valid_URL(url):
     print(response)
     is_valid = False
   return is_valid, response
-<<<<<<< HEAD
-=======
 
 def get_file_valid_urls(file_urls):
   '''
@@ -108,13 +104,13 @@ def get_file_valid_urls(file_urls):
       print("URL #", counter, " inválida")
     counter += 1
   return list_file_urls, list_file_colors
+
 def get_name(certificado):
     for i in certificado.subject.get_attributes_for_oid(x509.oid.NameOID.COMMON_NAME):
         return i.value
 
 def get_sha(certificado):
     return hex(certificado.serial_number).upper()
-
 
 def get_public_key_algorithm_format(certificado):
     format =  certificado.signature_hash_algorithm.name + ' - ' +str(certificado.public_key().key_size) + ' bits'
@@ -128,7 +124,6 @@ def format_date(date):
     month = month_number(month)
     date = year + '-' + month + '-' + day
     return date
-
 
 def month_number(month):
     months = {
@@ -172,8 +167,6 @@ def get_key_usage(cert):
     return usage
 
 
-
-
 def read_pem_certificates(file):
     certs_array = []
     with open(file, 'r') as f:
@@ -197,7 +190,6 @@ def read_pem_certificates(file):
             }
             certs_array.append(cert_dict)
     return certs_array
-
 
 def read_csv_certificates(file):
     certs_array = []
@@ -244,5 +236,3 @@ def get_trust_stores():
   mozilla_firefox = structure_trust_store(mozilla_firefox)
 
   return microsoft_edge, google_chrome, mozilla_firefox
-
->>>>>>> 3a4f6ae27643339494f204e63d55edf8176941aa
