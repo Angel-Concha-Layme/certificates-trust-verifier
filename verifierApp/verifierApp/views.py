@@ -3,11 +3,13 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 
 from .forms import urlForm
-from .src.verify import get_results, is_valid_URL
+from .src.verify import get_results, is_valid_URL, get_trust_stores
 
 lista_urls = []
 lista_colors = []
 lista_browsers = ['Microsoft Edge', 'Google Chrome', 'Mozilla Firefox']
+
+microsoft_store, google_store, mozilla_store = get_trust_stores()
 
 def index(request):
   global lista_colors
@@ -78,52 +80,10 @@ def clean(request):
   return redirect('index')
 
 def google_trust_Store(request):
-  certificates = [{
-    'Nombre': 'Entrust',
-    'Validez': '12/10/22 - 10/20/30',
-    'Usos de la llave': 'RSA - 4096',
-    'Digital Signature': 'Digital Signature',
-    'SHA-1': '3453DFGDG43GG'
-  },
-  {
-    'Nombre': 'Entrust',
-    'Validez': '12/10/22 - 10/20/30',
-    'Usos de la llave': 'RSA - 4096',
-    'Digital Signature': 'Digital Signature',
-    'SHA-1': '3453DFGDG43GG'
-  }]
-  return render(request, "google_trust_store/google_trust_store.html", {'certificates': certificates})
+  return render(request, "google_trust_store/google_trust_store.html", {'certificates': google_store})
 
 def microsoft_trust_Store(request):
-  certificates = [{
-    'Nombre': 'Entrust',
-    'Validez': '12/10/22 - 10/20/30',
-    'Usos de la llave': 'RSA - 4096',
-    'Digital Signature': 'Digital Signature',
-    'SHA-1': '3453DFGDG43GG'
-  },
-  {
-    'Nombre': 'Entrust',
-    'Validez': '12/10/22 - 10/20/30',
-    'Usos de la llave': 'RSA - 4096',
-    'Digital Signature': 'Digital Signature',
-    'SHA-1': '3453DFGDG43GG'
-  }]
-  return render(request, "microsoft_trust_store/microsoft_trust_store.html", {'certificates': certificates})
+  return render(request, "microsoft_trust_store/microsoft_trust_store.html", {'certificates': microsoft_store})
 
 def mozilla_trust_Store(request):
-  certificates = [{
-    'Nombre': 'Entrust',
-    'Validez': '12/10/22 - 10/20/30',
-    'Usos de la llave': 'RSA - 4096',
-    'Digital Signature': 'Digital Signature',
-    'SHA-1': '3453DFGDG43GG'
-  },
-  {
-    'Nombre': 'Entrust',
-    'Validez': '12/10/22 - 10/20/30',
-    'Usos de la llave': 'RSA - 4096',
-    'Digital Signature': 'Digital Signature',
-    'SHA-1': '3453DFGDG43GG'
-  }]
-  return render(request, "mozilla_trust_store/mozilla_trust_store.html", {'certificates': certificates})
+  return render(request, "mozilla_trust_store/mozilla_trust_store.html", {'certificates': mozilla_store})

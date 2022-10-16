@@ -40,18 +40,16 @@ def is_valid_URL(url):
     is_valid = False
   return is_valid, response
 
-
-
 def get_name(certificado):
     for i in certificado.subject.get_attributes_for_oid(x509.oid.NameOID.COMMON_NAME):
         return i.value
 
-def get_sha(certificado): 
+def get_sha(certificado):
     return hex(certificado.serial_number).upper()
 
 
 def get_public_key_algorithm_format(certificado):
-    format =  certificado.signature_hash_algorithm.name + ' ' +str(certificado.public_key().key_size) + ' bits'
+    format =  certificado.signature_hash_algorithm.name + ' - ' +str(certificado.public_key().key_size) + ' bits'
     return format
 
 def format_date(date):
@@ -99,8 +97,8 @@ def read_pem_certificates(file):
 
             cert_dict = {
                 "Common name": name,
-                "valid_before": cert.not_valid_before.strftime("%Y-%m-%d"),
-                "valid_after": cert.not_valid_after.strftime("%Y-%m-%d"),
+                "valid_before": cert.not_valid_before.strftime("%Y/%m/%d"),
+                "valid_after": cert.not_valid_after.strftime("%Y/%m/%d"),
                 "Public Key Algorithm": Public_Key_Algorithm_format,
                 "SHA-1": SHA
             }
@@ -117,16 +115,39 @@ def read_csv_certificates(file):
             valid_after = format_date(line[5])
             cert_dict = {
                 "Common name": line[1],
-                "valid_before": valid_before,
-                "valid_after": valid_after,
-                "Public Key Algorithm": line[6],
+                "valid_before": valid_before.replace('-','/'),
+                "valid_after": valid_after.replace('-','/'),
+                "Public Key Algorithm": line[6].replace(' ',' - ',1),
                 "SHA-1": line[2]
             }
             certs_array.append(cert_dict)
     return certs_array
 
+def structure_trust_store(certificates):
+  '''
+  Función que reestructura una lista de certificados de un trust store
+  '''
+  certificates_list = []
+  for certificate in certificates:
+    certificate_dic = {'Common name':certificate['Common name'],
+                      'validity': certificate['valid_before'] + " - " + certificate['valid_after'],
+                      'Public Key Algorithm': certificate['Public Key Algorithm'],
+                      'key-usage': 'Digital Signature',
+                      'SHA-1': certificate['SHA-1']}
+    certificates_list.append(certificate_dic)
+  return certificates_list
 
-Microsoft_Edge = read_csv_certificates('verifierApp/verifierApp/static/data/Microsoft_Edge.csv')
-Google_Chrome = read_pem_certificates('verifierApp/verifierApp/static/data/Google_Chrome.pem')
-Mozilla_Firefox = read_pem_certificates('verifierApp/verifierApp/static/data/Mozilla_Firefox.pem')
+def get_trust_stores():
+  '''
+  Función retorna los trusts stores de los 3 navegadores
+  '''
+  microsoft_edge = read_csv_certificates("verifierApp/static/data/Microsoft_Edge.csv")
+  google_chrome = read_pem_certificates("verifierApp/static/data/Google_Chrome.pem")
+  mozilla_firefox = read_pem_certificates("verifierApp/static/data/Mozilla_Firefox.pem")
+
+  microsoft_edge = structure_trust_store(microsoft_edge)
+  google_chrome = structure_trust_store(google_chrome)
+  mozilla_firefox = structure_trust_store(mozilla_firefox)
+
+  return microsoft_edge, google_chrome, mozilla_firefox
 
