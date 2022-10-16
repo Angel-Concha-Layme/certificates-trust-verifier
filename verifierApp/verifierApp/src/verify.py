@@ -80,6 +80,32 @@ def month_number(month):
     }
     return months[month]
 
+def get_key_usage(cert):
+    usage =""
+    try:
+        cert.extensions.get_extension_for_class(x509.KeyUsage)
+    except:
+        usage = 'UNDENTIFIED'
+        return usage
+    
+    if cert.extensions.get_extension_for_class(x509.KeyUsage).value.digital_signature == True:
+        usage = usage + 'digital_signature, '
+    if cert.extensions.get_extension_for_class(x509.KeyUsage).value.content_commitment == True:
+        usage = usage + 'content_commitment, '
+    if cert.extensions.get_extension_for_class(x509.KeyUsage).value.key_encipherment == True:
+        usage = usage + 'key_encipherment, ' 
+    if cert.extensions.get_extension_for_class(x509.KeyUsage).value.data_encipherment == True:
+        usage = usage + 'data_encipherment, '
+    if cert.extensions.get_extension_for_class(x509.KeyUsage).value.key_agreement == True:
+        usage = usage + 'key_agreement, '
+    if cert.extensions.get_extension_for_class(x509.KeyUsage).value.key_cert_sign == True:
+        usage = usage + 'key_cert_sign, '
+    if cert.extensions.get_extension_for_class(x509.KeyUsage).value.crl_sign == True:
+        usage = usage + 'crl_sign, '
+    return usage
+
+
+
 
 def read_pem_certificates(file):
     certs_array = []
@@ -91,6 +117,7 @@ def read_pem_certificates(file):
             cert = cert + '-----END CERTIFICATE-----'
             cert = x509.load_pem_x509_certificate(cert.encode(), default_backend())
 
+            key_usage = get_key_usage(cert)
             name = get_name(cert)
             Public_Key_Algorithm_format = get_public_key_algorithm_format(cert)
             cert_dict = {
@@ -98,9 +125,8 @@ def read_pem_certificates(file):
                 "valid_before": cert.not_valid_before.strftime("%Y-%m-%d"),
                 "valid_after": cert.not_valid_after.strftime("%Y-%m-%d"),
                 "Public Key Algorithm": Public_Key_Algorithm_format,
-                "key usage": 'Digital Signature',
+                "key usage": key_usage,
                 "SHA-1": (':'.join(cert.fingerprint(hashes.SHA1()).hex().upper()[i:i+2] for i in range(0, len(cert.fingerprint(hashes.SHA1()).hex().upper()), 2)))
-
             }
             certs_array.append(cert_dict)
     return certs_array
