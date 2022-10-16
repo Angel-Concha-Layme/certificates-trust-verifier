@@ -3,24 +3,48 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+
+<h1 class="text-center my-5">Digital Certificates Trust Verifier</h1>
+
 <form method="post">
     {% csrf_token %}
     {{ form }}
     <button id="verificar" type="submit" class="btn btn-primary">Verificar</button>
-    <button type="submit" class="btn btn-primary">Cargar en lote</button>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Cargar en lote</button>
 </form>
 
+<form enctype="multipart/form-data" action={% url 'upload_file' %} method="post">
+<!-- Modal -->
+{% csrf_token %}
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Subir archivo</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input accept=".txt" name="file" type="file" class="form-control" id="customFile" required/>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Verificar</button>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
 
 <div>
   {% if messages %}
     {% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+        <div class="alert {{ message.tags }} alert-dismissible fade show mt-2" style="margin-left: 19.5%; margin-right: 19.5%;" role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     {% endfor %}
   {% endif %}
-    <table class="table table-borderless my-5">
+    <table class="table table-borderless my-3 mx-auto" style="width: 90%;">
         <tr>
             <th></th>
             {% for browser in lista_browsers %}
@@ -29,15 +53,22 @@
         </tr>
         {% for url, lista_browsers_colors in results %}
             <tr>
-                <td class="align-middle">{{url}}</td>
+                <td class="text-start"><a href="{{ url }}" target="_blank">{{url}}</a></td>
 
                 {% for browser_colors in lista_browsers_colors %}
                 <td>
-                    {% for color in browser_colors%}
-                        <svg height="55" width="55">
-                        <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill={{color}} />
-                        </svg>
-                    {% endfor %}
+                  <svg height="55" width="55">
+                  <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill={{ browser_colors.0 }} />
+                  </svg>
+
+                  <svg height="55" width="55">
+                  <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill={{ browser_colors.1 }} />
+                  </svg>
+
+                  <svg height="55" width="55">
+                  <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill={{ browser_colors.2 }} />
+                  </svg>
+
                 </td>
                 {% endfor %}
             </tr>
@@ -45,20 +76,20 @@
     </table>
 </div>
 {% if display %}
-    <button class="btn btn-primary mb-5"><a href="{% url 'index' %}" style="text-decoration: none; color: aliceblue;">Limpiar todo</a></button>
+    <button class="btn btn-primary mb-5"><a href="{% url 'clean' %}" style="text-decoration: none; color: aliceblue;">Limpiar todo</a></button>
 {% endif %}
 
 <footer>
   <div class="container p-3">
     <div class="row">
       <div class="col-lg-4 col-md-12 mb-4 mb-md-0">
-        <a class="link" href="https://support.mozilla.org/en-US/kb/setting-certificate-authorities-firefox">Ver Mozilla Trust Store</a>
+        <a class="link" href="{% url 'mozilla_trust_Store' %}">Ver Mozilla Trust Store</a>
       </div>
       <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
-        <a class="link" href="https://learn.microsoft.com/en-us/windows-hardware/drivers/install/certificate-stores">Ver Microsoft Trust Store</a>
+        <a class="link" href="{% url 'microsoft_trust_Store' %}">Ver Microsoft Trust Store</a>
       </div>
       <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
-        <a class="link" href="#!">Ver Google Trust Store</a>
+        <a class="link" href="{% url 'google_trust_Store' %}">Ver Google Trust Store</a>
       </div>
     </div>
   </div>
