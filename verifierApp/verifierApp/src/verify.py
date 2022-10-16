@@ -2,6 +2,7 @@ import requests
 import random
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
 
 def get_results(url):
   '''
@@ -91,16 +92,14 @@ def read_pem_certificates(file):
             cert = x509.load_pem_x509_certificate(cert.encode(), default_backend())
 
             name = get_name(cert)
-            SHA = get_sha(cert)
-
             Public_Key_Algorithm_format = get_public_key_algorithm_format(cert)
-
             cert_dict = {
                 "Common name": name,
-                "valid_before": cert.not_valid_before.strftime("%Y/%m/%d"),
-                "valid_after": cert.not_valid_after.strftime("%Y/%m/%d"),
+                "valid_before": cert.not_valid_before.strftime("%Y-%m-%d"),
+                "valid_after": cert.not_valid_after.strftime("%Y-%m-%d"),
                 "Public Key Algorithm": Public_Key_Algorithm_format,
-                "SHA-1": SHA
+                "SHA-1": (':'.join(cert.fingerprint(hashes.SHA1()).hex().upper()[i:i+2] for i in range(0, len(cert.fingerprint(hashes.SHA1()).hex().upper()), 2)))
+
             }
             certs_array.append(cert_dict)
     return certs_array
@@ -115,10 +114,10 @@ def read_csv_certificates(file):
             valid_after = format_date(line[5])
             cert_dict = {
                 "Common name": line[1],
-                "valid_before": valid_before.replace('-','/'),
-                "valid_after": valid_after.replace('-','/'),
-                "Public Key Algorithm": line[6].replace(' ',' - ',1),
-                "SHA-1": line[2]
+                "valid_before": valid_before,
+                "valid_after": valid_after,
+                "Public Key Algorithm": line[6],
+                "SHA-1": (':'.join(line[2].upper()[i:i+2] for i in range(0, len(line[2].upper()), 2)))
             }
             certs_array.append(cert_dict)
     return certs_array
