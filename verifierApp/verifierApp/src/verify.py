@@ -89,19 +89,19 @@ def get_key_usage(cert):
         return usage
     
     if cert.extensions.get_extension_for_class(x509.KeyUsage).value.digital_signature == True:
-        usage = usage + 'digital_signature, '
+        usage = usage + 'Digital Signature, '
     if cert.extensions.get_extension_for_class(x509.KeyUsage).value.content_commitment == True:
-        usage = usage + 'content_commitment, '
+        usage = usage + 'Content Commitment, '
     if cert.extensions.get_extension_for_class(x509.KeyUsage).value.key_encipherment == True:
-        usage = usage + 'key_encipherment, ' 
+        usage = usage + 'Key Encipherment, ' 
     if cert.extensions.get_extension_for_class(x509.KeyUsage).value.data_encipherment == True:
-        usage = usage + 'data_encipherment, '
+        usage = usage + 'Data Encipherment, '
     if cert.extensions.get_extension_for_class(x509.KeyUsage).value.key_agreement == True:
-        usage = usage + 'key_agreement, '
+        usage = usage + 'Key Agreement, '
     if cert.extensions.get_extension_for_class(x509.KeyUsage).value.key_cert_sign == True:
-        usage = usage + 'key_cert_sign, '
+        usage = usage + 'Key Cert Sign, '
     if cert.extensions.get_extension_for_class(x509.KeyUsage).value.crl_sign == True:
-        usage = usage + 'crl_sign, '
+        usage = usage + 'Crl Sign, '
     return usage
 
 
