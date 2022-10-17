@@ -92,12 +92,6 @@ def get_name(certificado):
     for i in certificado.subject.get_attributes_for_oid(x509.oid.NameOID.COMMON_NAME):
         return i.value
 
-def get_sha(certificado):
-    return hex(certificado.serial_number).upper()
-
-def get_public_key_algorithm_format(certificado):
-    format =  certificado.signature_hash_algorithm.name + ' - ' +str(certificado.public_key().key_size) + ' bits'
-    return format
 
 def format_date(date):
     date = date.split(' ')
@@ -159,15 +153,13 @@ def read_pem_certificates(file):
         for cert in certs:
             cert = cert + '-----END CERTIFICATE-----'
             cert = x509.load_pem_x509_certificate(cert.encode(), default_backend())
-
             key_usage = get_key_usage(cert)
             name = get_name(cert)
-            Public_Key_Algorithm_format = get_public_key_algorithm_format(cert)
             cert_dict = {
                 "Common name": name,
                 "valid_before": cert.not_valid_before.strftime("%Y-%m-%d"),
                 "valid_after": cert.not_valid_after.strftime("%Y-%m-%d"),
-                "Public Key Algorithm": Public_Key_Algorithm_format,
+                "Public Key Algorithm": cert.signature_hash_algorithm.name + ' - ' +str(cert.public_key().key_size) + ' bits',
                 "key usage": key_usage,
                 "SHA-1": (':'.join(cert.fingerprint(hashes.SHA1()).hex().upper()[i:i+2] for i in range(0, len(cert.fingerprint(hashes.SHA1()).hex().upper()), 2)))
             }
