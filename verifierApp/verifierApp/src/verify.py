@@ -1,13 +1,10 @@
 import requests
-import random
 from oscrypto import tls
 from certvalidator import CertificateValidator, errors
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from OpenSSL import SSL, crypto
-from datetime import datetime
-import OpenSSL
 import socket
 import ssl
 import re
@@ -37,6 +34,7 @@ def is_valid_URL(url):
     print(response)
     is_valid = False
   return is_valid, response
+
 
 def get_file_valid_urls(file_urls):
   '''
@@ -201,7 +199,7 @@ def get_trust_stores():
 
 #
 
-def has_certificate(host, port=443, timeout=5):
+def has_certificate(host, port=443, timeout=10):
     response = False
     try:
       ssl.get_server_certificate((host, port))
@@ -211,8 +209,12 @@ def has_certificate(host, port=443, timeout=5):
     return response
 
 
+
 def get_certificate(host, port=443, timeout=5):
   return ssl.get_server_certificate((host, port))
+
+
+
 
 def get_sha1_certificate_root(url):
     session = tls.TLSSession(manual_validation=True)
@@ -246,6 +248,8 @@ def get_domain(url):
   return domain
 
 
+
+
 def is_secure(url, browser_store):
     url = get_domain(url)
     print(url)
@@ -265,9 +269,6 @@ def is_insecure(url):
     return False
   return True
 
-
-
-
 def is_partially_secure(url):
   # preprocesando url
   url = get_domain(url)
@@ -280,11 +281,6 @@ def is_partially_secure(url):
     return True
   else:
     return False
-
-
-
-
-
 
 def get_results(url):
   '''
@@ -385,8 +381,6 @@ def get_certificate_chain(url):
     pemFile = get_chain_PEM_File(url_proc, 443)
     chain_certificate = get_chain_certificate(pemFile)
     return chain_certificate
-
-
 
 """
 FIN DE CADENA DE CERTIFICACION
