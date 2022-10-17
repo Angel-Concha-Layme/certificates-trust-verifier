@@ -208,9 +208,8 @@ def has_certificate(host, port=443, timeout=5):
       response = True
     except socket.gaierror:
       response = False
-    except (error, timeout):
-      response = False
     return response
+
 
 def get_certificate(host, port=443, timeout=5):
   return ssl.get_server_certificate((host, port))
@@ -241,9 +240,14 @@ def preprocess_url(url):
     url = url[:-1]
   return url
 
+def get_domain(url):
+  url = preprocess_url(url)
+  domain = url.split('/')[0]
+  return domain
+
 
 def is_secure(url, browser_store):
-    url = preprocess_url(url)
+    url = get_domain(url)
     print(url)
     sha_1 = get_sha1_certificate_root(url)
     print(sha_1)
@@ -254,16 +258,19 @@ def is_secure(url, browser_store):
 
 def is_insecure(url):
   # preprocesando url
-  url = preprocess_url(url)
+  url = get_domain(url)
 
   # verificando si tiene certificado
   if has_certificate(url) == True:
     return False
   return True
 
+
+
+
 def is_partially_secure(url):
   # preprocesando url
-  url = preprocess_url(url)
+  url = get_domain(url)
 
   certificado = get_certificate(url)
   certificado_dic = read_certificate_pem(certificado)
@@ -273,6 +280,11 @@ def is_partially_secure(url):
     return True
   else:
     return False
+
+
+
+
+
 
 def get_results(url):
   '''
@@ -369,7 +381,7 @@ def get_chain_certificate(pem_format):
 
 
 def get_certificate_chain(url):
-    url_proc =preprocess_url(url)
+    url_proc = get_domain(url)
     pemFile = get_chain_PEM_File(url_proc, 443)
     chain_certificate = get_chain_certificate(pemFile)
     return chain_certificate
