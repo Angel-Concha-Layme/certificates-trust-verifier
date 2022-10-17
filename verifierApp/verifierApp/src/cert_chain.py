@@ -48,6 +48,7 @@ def print_certchain_props(certchain):
         print("version:" + str(cert.get_version()))
         print("sigAlg:" + cert.get_signature_algorithm().decode('utf-8'))
         print("digest:" + cert.digest('sha256').decode('utf-8'))
+        print("sha1:" + cert.digest('sha1').decode('utf-8'))
         print("serial number:" + str(cert.get_serial_number()))
 
 def get_root_cert(certchain):
@@ -55,6 +56,12 @@ def get_root_cert(certchain):
 
 def get_serial_number(cert):
     return str(cert.get_serial_number())
+
+def get_sha256(cert):
+    return cert.digest('sha256').decode('utf-8')
+
+def get_sha1(cert):
+    return cert.digest('sha1').decode('utf-8')
 
 #x509 = get_x509(apem)
 #print(apem)

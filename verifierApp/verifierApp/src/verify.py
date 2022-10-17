@@ -23,11 +23,13 @@ def get_certificate(host, port=443, timeout=10):
 def get_results(url):
   pems, certchain = cert_chain.getPEMFile(url, 443) #3 pems, 3 cert objects
   root_cert = cert_chain.get_root_cert(certchain)
-  serial_number = cert_chain.get_serial_number(root_cert)
-  print(serial_number)
+  sha1 = cert_chain.get_sha1(root_cert)
+  print(sha1)
   edge, chrome, mozilla = get_trust_stores()
-  is_trust = root_verify(chrome, serial_number)
-  print(is_trust)
+  is_trust_chrome = root_verify(chrome, sha1)
+  is_trust_mozilla = root_verify(mozilla, sha1)
+  is_trust_edge = root_verify(edge, sha1)
+  print(is_trust_chrome, is_trust_mozilla, is_trust_edge)
   '''
   Función que analiza y permite visualizar el nivel de confianza del
   certificado digital de la URL ingresada
@@ -212,9 +214,9 @@ def get_trust_stores():
 
   return microsoft_edge, google_chrome, mozilla_firefox
 
-def root_verify(cert_list, sn): #chrome & mozilla, serial number
+def root_verify(cert_list, sha1): #chrome & mozilla, SHA-1
     for cert in cert_list:
-      #print(cert['serial number'])
-      if cert['serial number'] == sn:
+      #print(cert['SHA-1'])
+      if cert['SHA-1'] == sha1:
           return True
     return False
