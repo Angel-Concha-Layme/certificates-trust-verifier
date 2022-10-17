@@ -3,11 +3,9 @@ import random
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
-from OpenSSL import SSL, crypto
-from datetime import datetime
-import OpenSSL
-import socket
 import re
+from oscrypto import tls
+from certvalidator import CertificateValidator, errors
 
 
 def get_results(url):
@@ -215,4 +213,67 @@ def is_secure(url):
     for cert in mozilla_firefox:
         if cert['SHA-1'] == key:
             return True
+
+
+
+
+
+from OpenSSL import SSL, crypto
+import socket
+
+"""
+CADENA DE CERTIFICACION
+"""
+
+def get_chain_PEM_File(url, port):
+  dst = (url, port)
+  ctx = SSL.Context(SSL.SSLv23_METHOD)
+  s = socket.create_connection(dst)
+  s = SSL.Connection(ctx, s)
+  s.set_connect_state()
+  s.set_tlsext_host_name(str.encode(dst[0]))
+  s.sendall(str.encode('HEAD / HTTP/1.0\n\n'))
+  peerCertChain = s.get_verified_chain()
+  pemFile = ''
+  for cert in peerCertChain:
+      pemFile += crypto.dump_certificate(crypto.FILETYPE_PEM, cert).decode("utf-8")
+  return pemFile 
+
+
+def get_chain_certificate(pem_format):
+    chain_certificate = []
+    certs = re.findall(r"-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----", pem_format, re.DOTALL)
+    for cert in certs:
+        cert = x509.load_pem_x509_certificate(cert.encode(), default_backend())
+
+        key_usage = get_key_usage(cert)
+        name = get_name(cert)
+        cert_dict = {
+            "Common name": name,
+            "valid_before": cert.not_valid_before.strftime("%Y-%m-%d"),
+            "valid_after": cert.not_valid_after.strftime("%Y-%m-%d"),
+            "Public Key Algorithm": cert.signature_hash_algorithm.name + ' - ' +str(cert.public_key().key_size) + ' bits',
+            "key usage": key_usage,
+            "SHA-1": (':'.join(cert.fingerprint(hashes.SHA1()).hex().upper()[i:i+2] for i in range(0, len(cert.fingerprint(hashes.SHA1()).hex().upper()), 2)))
+        }     
+        chain_certificate.append(cert_dict)
+
+    return chain_certificate
+
+
+
+def get_certificate_chain(url):
+    pemFile = get_chain_PEM_File(url, 443)
+    chain_certificate = get_chain_certificate(pemFile)
+    return chain_certificate
+
+    
+
+
+"""
+FIN DE CADENA DE CERTIFICACION
+"""
+
+chain= get_certificate_chain("www.youtube.com")
+
 
