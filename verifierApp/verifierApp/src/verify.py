@@ -1,23 +1,15 @@
 import requests
 import random
+from oscrypto import tls
+from certvalidator import CertificateValidator, errors
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
+from OpenSSL import SSL, crypto
+from datetime import datetime
+import OpenSSL
+import socket
 import re
-from oscrypto import tls
-from certvalidator import CertificateValidator, errors
-
-
-def get_results(url):
-  '''
-  Función que analiza y permite visualizar el nivel de confianza del
-  certificado digital de la URL ingresada
-  '''
-  print(url)
-  result = [random.sample(['green', 'white' ,'white'],3),
-            random.sample(['white', 'white' ,'green'],3),
-            random.sample(['white', 'green' ,'white'],3)]
-  return result
 
 def is_valid_URL(url):
   '''
@@ -195,85 +187,70 @@ def get_trust_stores():
 
 
 
+def get_sha1_certificate_root(url):
+    session = tls.TLSSession(manual_validation=True)
+    try:
+        connection = tls.TLSSocket(url, 443, session=session)
+    except Exception as e:
+        print("ppinch")
 
-def get_key_certificate_root(url):
-    return 10 #key
+    try:
+        validator = CertificateValidator(connection.certificate, connection.intermediates)
+        result = validator.validate_tls(connection.hostname)
+        cert_1 = result.__getitem__(0) # root
+        cert_2 = result.__getitem__(1)
+        cert_3 = result.__getitem__(2)
+    except (errors.PathValidationError):
+        print("The certificate did not match the hostname, or could not be otherwise validated")
+
+    sha_1 = cert_1.sha1.hex().upper()
+    sha_1 = ':'.join(a+b for a,b in zip(sha_1[::2], sha_1[1::2]))
+    return sha_1
+
+def preprocess_url(url):
+  url = url.split('//')[1]
+  if url[-1] == '/':
+    url = url[:-1]
+  return url
 
 
-
-def is_secure(url):
-    key = get_key_certificate_root(url)
-    microsoft_edge, google_chrome, mozilla_firefox = get_trust_stores()
-    for cert in microsoft_edge:
-        if cert['SHA-1'] == key:
+def is_secure(url, browser_store):
+    url = preprocess_url(url)
+    print(url)
+    sha_1 = get_sha1_certificate_root(url)
+    print(sha_1)
+    for cert in browser_store:
+        if cert['SHA-1'] == sha_1:
             return True
-    for cert in google_chrome:
-        if cert['SHA-1'] == key:
-            return True
-    for cert in mozilla_firefox:
-        if cert['SHA-1'] == key:
-            return True
+    return False
 
 
+def get_results(url):
+  '''
+  Función que analiza y permite visualizar el nivel de confianza del
+  certificado digital de la URL ingresada
+  '''
+  microsoft_edge, google_chrome, mozilla_firefox = get_trust_stores()
 
+  results = []
+  # Microsoft
+  if is_secure(url, microsoft_edge) == True:
+    results.append(['white', 'white' ,'green'])
+  else:
+    results.append(['green', 'white' ,'white'])
+  # Google
+  if is_secure(url, google_chrome) == True:
+    results.append(['white', 'white' ,'green'])
+  else:
+    results.append(['green', 'white' ,'white'])
+  # Mozilla
+  if is_secure(url, google_chrome) == True:
+    results.append(['white', 'white' ,'green'])
+  else:
+    results.append(['green', 'white' ,'white'])
 
-
-from OpenSSL import SSL, crypto
-import socket
-
-"""
-CADENA DE CERTIFICACION
-"""
-
-def get_chain_PEM_File(url, port):
-  dst = (url, port)
-  ctx = SSL.Context(SSL.SSLv23_METHOD)
-  s = socket.create_connection(dst)
-  s = SSL.Connection(ctx, s)
-  s.set_connect_state()
-  s.set_tlsext_host_name(str.encode(dst[0]))
-  s.sendall(str.encode('HEAD / HTTP/1.0\n\n'))
-  peerCertChain = s.get_verified_chain()
-  pemFile = ''
-  for cert in peerCertChain:
-      pemFile += crypto.dump_certificate(crypto.FILETYPE_PEM, cert).decode("utf-8")
-  return pemFile 
-
-
-def get_chain_certificate(pem_format):
-    chain_certificate = []
-    certs = re.findall(r"-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----", pem_format, re.DOTALL)
-    for cert in certs:
-        cert = x509.load_pem_x509_certificate(cert.encode(), default_backend())
-
-        key_usage = get_key_usage(cert)
-        name = get_name(cert)
-        cert_dict = {
-            "Common name": name,
-            "valid_before": cert.not_valid_before.strftime("%Y-%m-%d"),
-            "valid_after": cert.not_valid_after.strftime("%Y-%m-%d"),
-            "Public Key Algorithm": cert.signature_hash_algorithm.name + ' - ' +str(cert.public_key().key_size) + ' bits',
-            "key usage": key_usage,
-            "SHA-1": (':'.join(cert.fingerprint(hashes.SHA1()).hex().upper()[i:i+2] for i in range(0, len(cert.fingerprint(hashes.SHA1()).hex().upper()), 2)))
-        }     
-        chain_certificate.append(cert_dict)
-
-    return chain_certificate
-
-
-
-def get_certificate_chain(url):
-    pemFile = get_chain_PEM_File(url, 443)
-    chain_certificate = get_chain_certificate(pemFile)
-    return chain_certificate
-
-    
-
-
-"""
-FIN DE CADENA DE CERTIFICACION
-"""
-
-chain= get_certificate_chain("www.youtube.com")
-
-
+  #print(url)
+  #result = [random.sample(['green', 'white' ,'white'],3),
+  #          random.sample(['white', 'white' ,'green'],3),
+  #          random.sample(['white', 'green' ,'white'],3)]
+  return results
