@@ -201,10 +201,13 @@ def get_trust_stores():
 
 def has_certificate(host, port=443, timeout=10):
     response = False
+    socket.setdefaulttimeout(timeout)
     try:
       ssl.get_server_certificate((host, port))
       response = True
     except socket.gaierror:
+      response = False
+    except socket.timeout:
       response = False
     return response
 
