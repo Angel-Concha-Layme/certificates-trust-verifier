@@ -1,14 +1,13 @@
 import requests
 import random
 import ssl
-import OpenSSL
 import socket
-from datetime import datetime
-from pprint import pprint
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
+
+import cert_chain
 
 def get_certificate(host, port=443, timeout=10):
     context = ssl.create_default_context()
@@ -21,30 +20,14 @@ def get_certificate(host, port=443, timeout=10):
         sock.close()
     return ssl.DER_cert_to_PEM_cert(der_cert)
 
-def get_x509(cert):
-    x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)# lee una cadena pem
-    result = {
-        'subject': dict(x509.get_subject().get_components()),
-        'issuer': dict(x509.get_issuer().get_components()),
-        'serialNumber': x509.get_serial_number(),
-        'version': x509.get_version(),
-        'notBefore': datetime.strptime(x509.get_notBefore().decode('ascii'), '%Y%m%d%H%M%SZ'),
-        'notAfter': datetime.strptime(x509.get_notAfter().decode('ascii'), '%Y%m%d%H%M%SZ'),
-    }
-    extensions = (x509.get_extension(i) for i in range(x509.get_extension_count()))
-    extension_data = {e.get_short_name().decode('UTF-8'): str(e) for e in extensions}
-    result.update(extension_data)
-    return result
-
 def get_results(url):
-  certificate = get_certificate(url)
-  x509 = get_x509(certificate)
-  pprint(x509['notBefore'].strftime("%d/%m/%Y") + ' - ' + x509['notAfter'].strftime("%d/%m/%Y")) # fechas
-  cn = x509['issuer']
-  pprint(cn[b'O'].decode('UTF-8')) #Organizacion
-  pprint(cn[b'CN'].decode('UTF-8')) #Nombre completo de organizacion
-  pprint(x509[b'keyUsage']) #uso de clave
-  
+  pems, certchain = cert_chain.getPEMFile(url, 443) #3 pems, 3 cert objects
+  root_cert = cert_chain.get_root_cert(certchain)
+  serial_number = cert_chain.get_serial_number(root_cert)
+  print(serial_number)
+  edge, chrome, mozilla = get_trust_stores()
+  is_trust = root_verify(chrome, serial_number)
+  print(is_trust)
   '''
   Función que analiza y permite visualizar el nivel de confianza del
   certificado digital de la URL ingresada
@@ -236,3 +219,10 @@ def get_trust_stores():
   mozilla_firefox = structure_trust_store(mozilla_firefox)
 
   return microsoft_edge, google_chrome, mozilla_firefox
+
+def root_verify(cert_list, sn): #chrome & mozilla, serial number
+    for cert in cert_list:
+      #print(cert['serial number'])
+      if cert['serial number'] == sn:
+          return True
+    return False

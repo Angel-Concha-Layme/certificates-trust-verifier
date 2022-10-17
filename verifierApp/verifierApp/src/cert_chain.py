@@ -56,11 +56,6 @@ def get_root_cert(certchain):
 def get_serial_number(cert):
     return str(cert.get_serial_number())
 
-url = 'www.google.com'
-apem, certchain = getPEMFile(url, 443)
 #x509 = get_x509(apem)
 #print(apem)
-root = get_root_cert(certchain)
-sn = get_serial_number(root)
-print(sn)
 #print(x509)
