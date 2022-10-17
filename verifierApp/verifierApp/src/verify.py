@@ -203,30 +203,16 @@ def get_key_certificate_root(url):
 
 
 
-def get_security(url):
-    key=get_key_certificate_root(url)
-    #El sitio es seguro si el certificado es de un CA reconocido (truststore)
-    #El sitio no es seguro si el certificado es de un CA no reconocido (truststore)
-    
-    #El sitio es inseguro si el certificado es auto firmado
-    #El sitio es inseguro si el certificado es de un CA reconocido pero la fecha de expiración es menor a 30 días
+def is_secure(url):
+    key = get_key_certificate_root(url)
     microsoft_edge, google_chrome, mozilla_firefox = get_trust_stores()
-    print (key)
     for cert in microsoft_edge:
         if cert['SHA-1'] == key:
-            print ("El sitio es seguro")
-            return 'Seguro'
+            return True
     for cert in google_chrome:
         if cert['SHA-1'] == key:
-            print ("El sitio es seguro")
-            return 'Seguro'
+            return True
     for cert in mozilla_firefox:
         if cert['SHA-1'] == key:
-            print ("El sitio es seguro")
-            return 'Seguro'
-    print ("El sitio es inseguro")
-    return 'Inseguro'
-
-    
-
+            return True
 
