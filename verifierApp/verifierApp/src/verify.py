@@ -297,17 +297,17 @@ def get_results(url):
   # INSECURE
   if is_insecure(url) == True:
     # asigna como inseguro en todos los browsers
-    results = [['green', 'white' ,'white'],
-              ['green', 'white' ,'white'],
-              ['green', 'white' ,'white']]
+    results = [['red', 'white' ,'white'],
+              ['red', 'white' ,'white'],
+              ['red', 'white' ,'white']]
     return results
 
   # PARTIALLY SECURE
   if is_partially_secure(url) == True:
     # asigna como parcialmente inseguro en todos los browsers
-    results = [['white', 'green' ,'white'],
-              ['white', 'green' ,'white'],
-              ['white', 'green' ,'white']]
+    results = [['white', 'yellow' ,'white'],
+              ['white', 'yellow' ,'white'],
+              ['white', 'yellow' ,'white']]
     return results
 
 
@@ -317,17 +317,17 @@ def get_results(url):
   if is_secure(url, microsoft_edge) == True:
     results.append(['white', 'white' ,'green'])
   else:
-    results.append(['green', 'white' ,'white'])
+    results.append(['red', 'white' ,'white'])
   # google
   if is_secure(url, google_chrome) == True:
     results.append(['white', 'white' ,'green'])
   else:
-    results.append(['green', 'white' ,'white'])
+    results.append(['red', 'white' ,'white'])
   # Mozilla
   if is_secure(url, google_chrome) == True:
     results.append(['white', 'white' ,'green'])
   else:
-    results.append(['green', 'white' ,'white'])
+    results.append(['red', 'white' ,'white'])
 
   return results
 
