@@ -1,13 +1,10 @@
 import requests
-import random
 from oscrypto import tls
 from certvalidator import CertificateValidator, errors
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from OpenSSL import SSL, crypto
-from datetime import datetime
-import OpenSSL
 import socket
 import re
 
@@ -225,6 +222,9 @@ def is_secure(url, browser_store):
     return False
 
 
+
+
+
 def get_results(url):
   '''
   Función que analiza y permite visualizar el nivel de confianza del
@@ -305,7 +305,8 @@ def get_certificate_chain(url):
     chain_certificate = get_chain_certificate(pemFile)
     return chain_certificate
 
- 
+
+
 
 """
 FIN DE CADENA DE CERTIFICACION
