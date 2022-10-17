@@ -254,3 +254,58 @@ def get_results(url):
   #          random.sample(['white', 'white' ,'green'],3),
   #          random.sample(['white', 'green' ,'white'],3)]
   return results
+
+
+
+  
+"""
+CADENA DE CERTIFICACION
+"""
+
+def get_chain_PEM_File(url, port):
+  dst = (url, port)
+  ctx = SSL.Context(SSL.SSLv23_METHOD)
+  s = socket.create_connection(dst)
+  s = SSL.Connection(ctx, s)
+  s.set_connect_state()
+  s.set_tlsext_host_name(str.encode(dst[0]))
+  s.sendall(str.encode('HEAD / HTTP/1.0\n\n'))
+  peerCertChain = s.get_verified_chain()
+  pemFile = ''
+  for cert in peerCertChain:
+      pemFile += crypto.dump_certificate(crypto.FILETYPE_PEM, cert).decode("utf-8")
+  return pemFile 
+
+
+def get_chain_certificate(pem_format):
+    chain_certificate = []
+    certs = re.findall(r"-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----", pem_format, re.DOTALL)
+    for cert in certs:
+        cert = x509.load_pem_x509_certificate(cert.encode(), default_backend())
+
+        key_usage = get_key_usage(cert)
+        name = get_name(cert)
+        cert_dict = {
+            "Common name": name,
+            "valid_before": cert.not_valid_before.strftime("%Y-%m-%d"),
+            "valid_after": cert.not_valid_after.strftime("%Y-%m-%d"),
+            "Public Key Algorithm": cert.signature_hash_algorithm.name + ' - ' +str(cert.public_key().key_size) + ' bits',
+            "key usage": key_usage,
+            "SHA-1": (':'.join(cert.fingerprint(hashes.SHA1()).hex().upper()[i:i+2] for i in range(0, len(cert.fingerprint(hashes.SHA1()).hex().upper()), 2)))
+        }     
+        chain_certificate.append(cert_dict)
+
+    return chain_certificate
+
+
+
+def get_certificate_chain(url):
+    pemFile = get_chain_PEM_File(url, 443)
+    chain_certificate = get_chain_certificate(pemFile)
+    return chain_certificate
+
+ 
+
+"""
+FIN DE CADENA DE CERTIFICACION
+"""
