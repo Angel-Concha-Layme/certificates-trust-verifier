@@ -381,10 +381,16 @@ def get_certificate_chain(url):
     chain_certificate = get_chain_certificate(pemFile)
     return chain_certificate
 
+
+
+
 """
 FIN DE CADENA DE CERTIFICACION
 """
 
 
+
+def properties_ssl(url):
+    return get_certificate_chain(url)[0]
 
 
