@@ -300,7 +300,8 @@ def get_chain_certificate(pem_format):
 
 
 def get_certificate_chain(url):
-    pemFile = get_chain_PEM_File(url, 443)
+    url_proc =preprocess_url(url)
+    pemFile = get_chain_PEM_File(url_proc, 443)
     chain_certificate = get_chain_certificate(pemFile)
     return chain_certificate
 
