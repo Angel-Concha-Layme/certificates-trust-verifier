@@ -230,8 +230,6 @@ def get_sha1_certificate_root(url):
         validator = CertificateValidator(connection.certificate, connection.intermediates)
         result = validator.validate_tls(connection.hostname)
         cert_1 = result.__getitem__(0) # root
-        cert_2 = result.__getitem__(1)
-        cert_3 = result.__getitem__(2)
     except (errors.PathValidationError):
         print("The certificate did not match the hostname, or could not be otherwise validated")
 
