@@ -36,8 +36,8 @@ def index(request):
 
       # si es válida y existe la URL
       if valid_url == True:
-        get_chain_Certificate_Validator(url_string)
-        properties_ssl(url_string)
+        #get_chain_Certificate_Validator(url_string)
+        #properties_ssl(url_string)
         lista_urls.insert(0, url_string)
 
          # Funcion que verifica el nivel de confianza
@@ -136,9 +136,7 @@ def upload_file(request):
         message_response = "No se ha leído ninguna URL"
       else:
         message_response = "Todas las URLs son inválidas"
-  #for url in urls:
-    #get_chain_Certificate_Validator(url)
-    #properties_ssl(url)
+
   return redirect('index')
 
 def clean(request):
