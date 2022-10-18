@@ -412,38 +412,40 @@ def properties_ssl(url):
 
 
 def get_chain_Certificate_Validator(url):
-    url=get_domain(url)
-    session = tls.TLSSession(manual_validation=True)
-    try:
-        connection = tls.TLSSocket(url, 443, session=session)
-    except Exception as e:
-        print("ppinch")
+    if has_certificate(url)==True:
 
-    try:
-        validator = CertificateValidator(connection.certificate, connection.intermediates)
-        result = validator.validate_tls(connection.hostname)
-        cert_1 = result.__getitem__(0) # root
-        cert_2 = result.__getitem__(1)
-        cert_3 = result.__getitem__(2)
-    except (errors.PathValidationError):
-        print("The certificate did not match the hostname, or could not be otherwise validated")
-    
-    print("CADENA DE CERTIFICACION")
-    print("---------------------------")
-    print("ROOT CA")
-    print("SHA-1: ", cert_1.sha1.hex().upper())
-    print("SERIAL NUMBER: ", hex(cert_1.serial_number))
-    print("\n")
+      url=get_domain(url)
+      session = tls.TLSSession(manual_validation=True)
+      try:
+          connection = tls.TLSSocket(url, 443, session=session)
+      except Exception as e:
+          print("ppinch")
 
-    print("ROOT R1")
-    print("SHA-1:", cert_2.sha1.hex().upper())
-    print("SERIAL NUMBER: ", hex(cert_2.serial_number))
-    print("\n")
+      try:
+          validator = CertificateValidator(connection.certificate, connection.intermediates)
+          result = validator.validate_tls(connection.hostname)
+          cert_1 = result.__getitem__(0) # root
+          cert_2 = result.__getitem__(1)
+          cert_3 = result.__getitem__(2)
+      except (errors.PathValidationError):
+          print("The certificate did not match the hostname, or could not be otherwise validated")
+      
+      print("CADENA DE CERTIFICACION")
+      print("---------------------------")
+      print("ROOT CA")
+      print("SHA-1: ", cert_1.sha1.hex().upper())
+      print("SERIAL NUMBER: ", hex(cert_1.serial_number))
+      print("\n")
 
-    print("ROOT R2")
-    print("SHA-1:", cert_3.sha1.hex().upper())
-    print("SERIAL NUMBER: ", hex(cert_3.serial_number))
-    print("\n")
-    return cert_1, cert_2, cert_3
+      print("ROOT R1")
+      print("SHA-1:", cert_2.sha1.hex().upper())
+      print("SERIAL NUMBER: ", hex(cert_2.serial_number))
+      print("\n")
+
+      print("ROOT R2")
+      print("SHA-1:", cert_3.sha1.hex().upper())
+      print("SERIAL NUMBER: ", hex(cert_3.serial_number))
+      print("\n")
+      return cert_1, cert_2, cert_3
 
 
