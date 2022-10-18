@@ -20,7 +20,7 @@ pip install -r requirements.txt
 ```
 ## 3. Run app
 
-We run the application with the following command.
+Inside the ```verfierApp/``` folder, we run the application with the following command.
 ```bash
 python manage.py runserver
 ```
