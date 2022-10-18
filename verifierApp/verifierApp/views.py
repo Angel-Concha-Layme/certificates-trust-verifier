@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 
 from .forms import urlForm
-from .src.verify import get_results, is_valid_URL, get_file_valid_urls, get_trust_stores
+from .src.verify import get_results, is_valid_URL, get_file_valid_urls, get_trust_stores, get_chain_Certificate_Validator, properties_ssl
 
 lista_urls = []
 lista_colors = []
@@ -27,7 +27,7 @@ def index(request):
   if request.method == 'POST':
     form = urlForm(request.POST)
     if form.is_valid():
-
+      
       # Obteniendo URL como string
       url_string = form.cleaned_data['url']
 
@@ -36,6 +36,8 @@ def index(request):
 
       # si es válida y existe la URL
       if valid_url == True:
+        #get_chain_Certificate_Validator(url_string)
+        #properties_ssl(url_string)
         lista_urls.insert(0, url_string)
 
          # Funcion que verifica el nivel de confianza
@@ -104,7 +106,7 @@ def upload_file(request):
   global display_success
   global message_response
   if request.method == 'POST':
-
+  
     # leemos el archivo y lo obtenemos en bytes
     file_urls = request.FILES['file'].readlines()
 

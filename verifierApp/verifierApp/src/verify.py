@@ -1,44 +1,14 @@
+from operator import ge
 import requests
-import random
-import ssl
-import socket
-
+from oscrypto import tls
+from certvalidator import CertificateValidator, errors
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
-
-import cert_chain
-
-def get_certificate(host, port=443, timeout=10):
-    context = ssl.create_default_context()
-    conn = socket.create_connection((host, port))
-    sock = context.wrap_socket(conn, server_hostname=host)
-    sock.settimeout(timeout)
-    try:
-        der_cert = sock.getpeercert(True)
-    finally:
-        sock.close()
-    return ssl.DER_cert_to_PEM_cert(der_cert)
-
-def get_results(url):
-  pems, certchain = cert_chain.getPEMFile(url, 443) #3 pems, 3 cert objects
-  root_cert = cert_chain.get_root_cert(certchain)
-  sha1 = cert_chain.get_sha1(root_cert)
-  print(sha1)
-  edge, chrome, mozilla = get_trust_stores()
-  is_trust_chrome = is_secure(chrome, sha1)
-  is_trust_mozilla = is_secure(mozilla, sha1)
-  is_trust_edge = is_secure(edge, sha1)
-  print(is_trust_chrome, is_trust_mozilla, is_trust_edge)
-  '''
-  Función que analiza y permite visualizar el nivel de confianza del
-  certificado digital de la URL ingresada
-  '''
-  print(url)
-  result = [random.sample(['green', 'white' ,'white'],3),
-            random.sample(['white', 'white' ,'green'],3),
-            random.sample(['white', 'green' ,'white'],3)]
-  return result
+from OpenSSL import SSL, crypto
+import socket
+import ssl
+import re
 
 def is_valid_URL(url):
   '''
@@ -65,6 +35,7 @@ def is_valid_URL(url):
     print(response)
     is_valid = False
   return is_valid, response
+
 
 def get_file_valid_urls(file_urls):
   '''
@@ -94,6 +65,13 @@ def get_name(certificado):
     for i in certificado.subject.get_attributes_for_oid(x509.oid.NameOID.COMMON_NAME):
         return i.value
 
+def get_issuer(certificado):
+    for i in certificado.issuer.get_attributes_for_oid(x509.oid.NameOID.COMMON_NAME):
+      return i.value
+
+def get_public_key_algorithm_format(certificado):
+    format =  certificado.signature_hash_algorithm.name + ' - ' +str(certificado.public_key().key_size) + ' bits'
+    return format
 
 def format_date(date):
     date = date.split(' ')
@@ -145,6 +123,21 @@ def get_key_usage(cert):
         usage = usage + 'Crl Sign, '
     return usage
 
+def read_certificate_pem(cert):
+  cert = x509.load_pem_x509_certificate(cert.encode(), default_backend())
+  key_usage = get_key_usage(cert)
+  name = get_name(cert)
+  Public_Key_Algorithm_format = get_public_key_algorithm_format(cert)
+  cert_dict = {
+                "Common name": name,
+                "issuer": get_issuer(cert),
+                "valid_before": cert.not_valid_before.strftime("%Y-%m-%d"),
+                "valid_after": cert.not_valid_after.strftime("%Y-%m-%d"),
+                "Public Key Algorithm": Public_Key_Algorithm_format,
+                "key usage": key_usage,
+                "SHA-1": (':'.join(cert.fingerprint(hashes.SHA1()).hex().upper()[i:i+2] for i in range(0, len(cert.fingerprint(hashes.SHA1()).hex().upper()), 2)))
+  }
+  return cert_dict
 
 def read_pem_certificates(file):
     certs_array = []
@@ -154,17 +147,7 @@ def read_pem_certificates(file):
         certs.pop()
         for cert in certs:
             cert = cert + '-----END CERTIFICATE-----'
-            cert = x509.load_pem_x509_certificate(cert.encode(), default_backend())
-            key_usage = get_key_usage(cert)
-            name = get_name(cert)
-            cert_dict = {
-                "Common name": name,
-                "valid_before": cert.not_valid_before.strftime("%Y-%m-%d"),
-                "valid_after": cert.not_valid_after.strftime("%Y-%m-%d"),
-                "Public Key Algorithm": cert.signature_hash_algorithm.name + ' - ' +str(cert.public_key().key_size) + ' bits',
-                "key usage": key_usage,
-                "SHA-1": (':'.join(cert.fingerprint(hashes.SHA1()).hex().upper()[i:i+2] for i in range(0, len(cert.fingerprint(hashes.SHA1()).hex().upper()), 2)))
-            }
+            cert_dict = read_certificate_pem(cert)
             certs_array.append(cert_dict)
     return certs_array
 
@@ -214,9 +197,254 @@ def get_trust_stores():
 
   return microsoft_edge, google_chrome, mozilla_firefox
 
-def is_secure(cert_list, sha1): #chrome & mozilla, SHA-1
-    for cert in cert_list:
-      #print(cert['SHA-1'])
-      if cert['SHA-1'] == sha1:
-          return True
+#
+
+def has_certificate(host, port=443, timeout=10):
+    response = False
+    socket.setdefaulttimeout(timeout)
+    try:
+      ssl.get_server_certificate((host, port))
+      response = True
+    except socket.gaierror:
+      response = False
+    except socket.timeout:
+      response = False
+    return response
+
+
+
+def get_certificate(host, port=443, timeout=5):
+  return ssl.get_server_certificate((host, port))
+
+
+
+
+def get_sha1_certificate_root(url):
+    session = tls.TLSSession(manual_validation=True)
+    try:
+        connection = tls.TLSSocket(url, 443, session=session)
+    except Exception as e:
+        print("ppinch")
+
+    try:
+        validator = CertificateValidator(connection.certificate, connection.intermediates)
+        result = validator.validate_tls(connection.hostname)
+        cert_1 = result.__getitem__(0) # root
+        cert_2 = result.__getitem__(1)
+        cert_3 = result.__getitem__(2)
+    except (errors.PathValidationError):
+        print("The certificate did not match the hostname, or could not be otherwise validated")
+
+    sha_1 = cert_1.sha1.hex().upper()
+    sha_1 = ':'.join(a+b for a,b in zip(sha_1[::2], sha_1[1::2]))
+    return sha_1
+
+def preprocess_url(url):
+  url = url.split('//')[1]
+  if url[-1] == '/':
+    url = url[:-1]
+  return url
+
+
+
+def get_domain(url):
+  url = preprocess_url(url)
+  domain = url.split('/')[0]
+  return domain
+
+
+
+
+def is_secure(url, browser_store):
+    url = get_domain(url)
+    #print(url)
+
+    sha_1 = get_sha1_certificate_root(url)
+    #print(sha_1)
+    for cert in browser_store:
+        if cert['SHA-1'] == sha_1:
+            return True
     return False
+
+def is_insecure(url):
+  # preprocesando url
+  url = get_domain(url)
+
+  # verificando si tiene certificado
+  if has_certificate(url) == True:
+    return False
+  return True
+
+def is_partially_secure(url):
+    # preprocesando url
+    url = get_domain(url)
+
+    certificado = get_certificate(url)
+    certificado_dic = read_certificate_pem(certificado)
+
+    if certificado_dic['Common name'] == certificado_dic['issuer']:
+        return True
+    else:
+        return False
+
+
+def get_results(url):
+  '''
+  Función que analiza y permite visualizar el nivel de confianza del
+  certificado digital de la URL ingresada
+  '''
+  microsoft_edge, google_chrome, mozilla_firefox = get_trust_stores()
+
+  results = []
+
+  # INSECURE
+  if is_insecure(url) == True:
+    # asigna como inseguro en todos los browsers
+    results = [['red', 'white' ,'white'],
+              ['red', 'white' ,'white'],
+              ['red', 'white' ,'white']]
+    return results
+
+  # PARTIALLY SECURE
+  if is_partially_secure(url) == True:
+    # asigna como parcialmente inseguro en todos los browsers
+    results = [['white', 'yellow' ,'white'],
+              ['white', 'yellow' ,'white'],
+              ['white', 'yellow' ,'white']]
+    return results
+
+
+  # SECURE
+
+  # microsoft
+  if is_secure(url, microsoft_edge) == True:
+    results.append(['white', 'white' ,'green'])
+  else:
+    results.append(['red', 'white' ,'white'])
+  # google
+  if is_secure(url, google_chrome) == True:
+    results.append(['white', 'white' ,'green'])
+  else:
+    results.append(['red', 'white' ,'white'])
+  # Mozilla
+  if is_secure(url, mozilla_firefox) == True:
+    results.append(['white', 'white' ,'green'])
+  else:
+    results.append(['red', 'white' ,'white'])
+
+  return results
+
+
+
+
+"""
+CADENA DE CERTIFICACION
+"""
+
+def get_chain_PEM_File(url, port):
+  dst = (url, port)
+  ctx = SSL.Context(SSL.SSLv23_METHOD)
+  s = socket.create_connection(dst)
+  s = SSL.Connection(ctx, s)
+  s.set_connect_state()
+  s.set_tlsext_host_name(str.encode(dst[0]))
+  s.sendall(str.encode('HEAD / HTTP/1.0\n\n'))
+  peerCertChain = s.get_verified_chain()
+  pemFile = ''
+  for cert in peerCertChain:
+      pemFile += crypto.dump_certificate(crypto.FILETYPE_PEM, cert).decode("utf-8")
+  return pemFile
+
+
+def get_chain_certificate(pem_format):
+    chain_certificate = []
+    certs = re.findall(r"-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----", pem_format, re.DOTALL)
+    for cert in certs:
+        cert = x509.load_pem_x509_certificate(cert.encode(), default_backend())
+
+        key_usage = get_key_usage(cert)
+        name = get_name(cert)
+        cert_dict = {
+            "Common name": name,
+            "valid_before": cert.not_valid_before.strftime("%Y-%m-%d"),
+            "valid_after": cert.not_valid_after.strftime("%Y-%m-%d"),
+            "Public Key Algorithm": cert.signature_hash_algorithm.name + ' - ' +str(cert.public_key().key_size) + ' bits',
+            "key usage": key_usage,
+            "SHA-1": (':'.join(cert.fingerprint(hashes.SHA1()).hex().upper()[i:i+2] for i in range(0, len(cert.fingerprint(hashes.SHA1()).hex().upper()), 2)))
+        }
+        chain_certificate.append(cert_dict)
+
+    return chain_certificate
+
+
+
+def get_certificate_chain(url):
+    url_proc = get_domain(url)
+    pemFile = get_chain_PEM_File(url_proc, 443)
+    chain_certificate = get_chain_certificate(pemFile)
+    print("CERTIFICATE CHAIN")
+    print (chain_certificate)
+    print ("CERTIFICATE CHAIN END")
+    return chain_certificate
+
+
+"""
+FIN DE CADENA DE CERTIFICACION
+"""
+
+"""
+def properties_ssl(url):
+    properties_ssl = get_certificate_chain(url)[0]
+    print(properties_ssl)
+    return properties_ssl
+"""
+
+
+def properties_ssl(url):
+  url_proc = get_domain(url)
+  pemFile =get_certificate(url_proc)
+  cert = read_certificate_pem(pemFile)
+  print("PROPIEDADES SSL")
+  print("---------------------------")
+  print(cert)
+  return cert
+
+
+def get_chain_Certificate_Validator(url):
+    if has_certificate(url)==True:
+
+      url=get_domain(url)
+      session = tls.TLSSession(manual_validation=True)
+      try:
+          connection = tls.TLSSocket(url, 443, session=session)
+      except Exception as e:
+          print("ppinch")
+
+      try:
+          validator = CertificateValidator(connection.certificate, connection.intermediates)
+          result = validator.validate_tls(connection.hostname)
+          cert_1 = result.__getitem__(0) # root
+          cert_2 = result.__getitem__(1)
+          cert_3 = result.__getitem__(2)
+      except (errors.PathValidationError):
+          print("The certificate did not match the hostname, or could not be otherwise validated")
+
+      print("CADENA DE CERTIFICACION")
+      print("---------------------------")
+      print("ROOT CA")
+      print("SHA-1: ", cert_1.sha1.hex().upper())
+      print("SERIAL NUMBER: ", hex(cert_1.serial_number))
+      print("\n")
+
+      print("ROOT R1")
+      print("SHA-1:", cert_2.sha1.hex().upper())
+      print("SERIAL NUMBER: ", hex(cert_2.serial_number))
+      print("\n")
+
+      print("ROOT R2")
+      print("SHA-1:", cert_3.sha1.hex().upper())
+      print("SERIAL NUMBER: ", hex(cert_3.serial_number))
+      print("\n")
+      return cert_1, cert_2, cert_3
+
+
