@@ -1,3 +1,4 @@
+from operator import ge
 import requests
 from oscrypto import tls
 from certvalidator import CertificateValidator, errors
@@ -245,6 +246,8 @@ def preprocess_url(url):
     url = url[:-1]
   return url
 
+
+
 def get_domain(url):
   url = preprocess_url(url)
   domain = url.split('/')[0]
@@ -255,9 +258,10 @@ def get_domain(url):
 
 def is_secure(url, browser_store):
     url = get_domain(url)
-    print(url)
+    #print(url)
+
     sha_1 = get_sha1_certificate_root(url)
-    print(sha_1)
+    #print(sha_1)
     for cert in browser_store:
         if cert['SHA-1'] == sha_1:
             return True
@@ -273,17 +277,17 @@ def is_insecure(url):
   return True
 
 def is_partially_secure(url):
-  # preprocesando url
-  url = get_domain(url)
+    # preprocesando url
+    url = get_domain(url)
 
-  certificado = get_certificate(url)
-  certificado_dic = read_certificate_pem(certificado)
+    certificado = get_certificate(url)
+    certificado_dic = read_certificate_pem(certificado)
 
-  # si el subject es igual al issuer
-  if certificado_dic['Common name'] == certificado_dic['issuer']:
-    return True
-  else:
-    return False
+    if certificado_dic['Common name'] == certificado_dic['issuer']: 
+        return True
+    else:
+        return False
+
 
 def get_results(url):
   '''
@@ -324,7 +328,7 @@ def get_results(url):
   else:
     results.append(['red', 'white' ,'white'])
   # Mozilla
-  if is_secure(url, google_chrome) == True:
+  if is_secure(url, mozilla_firefox) == True:
     results.append(['white', 'white' ,'green'])
   else:
     results.append(['red', 'white' ,'white'])
@@ -379,18 +383,67 @@ def get_certificate_chain(url):
     url_proc = get_domain(url)
     pemFile = get_chain_PEM_File(url_proc, 443)
     chain_certificate = get_chain_certificate(pemFile)
+    print("CERTIFICATE CHAIN")
+    print (chain_certificate)
+    print ("CERTIFICATE CHAIN END")
     return chain_certificate
-
-
 
 
 """
 FIN DE CADENA DE CERTIFICACION
 """
 
+"""
+def properties_ssl(url):
+    properties_ssl = get_certificate_chain(url)[0]
+    print(properties_ssl)
+    return properties_ssl
+"""
 
 
 def properties_ssl(url):
-    return get_certificate_chain(url)[0]
+  url_proc = get_domain(url)
+  pemFile =get_certificate(url_proc)
+  cert = read_certificate_pem(pemFile)
+  print("PROPIEDADES SSL")
+  print("---------------------------")
+  print(cert)
+  return cert
+
+
+def get_chain_Certificate_Validator(url):
+    url=get_domain(url)
+    session = tls.TLSSession(manual_validation=True)
+    try:
+        connection = tls.TLSSocket(url, 443, session=session)
+    except Exception as e:
+        print("ppinch")
+
+    try:
+        validator = CertificateValidator(connection.certificate, connection.intermediates)
+        result = validator.validate_tls(connection.hostname)
+        cert_1 = result.__getitem__(0) # root
+        cert_2 = result.__getitem__(1)
+        cert_3 = result.__getitem__(2)
+    except (errors.PathValidationError):
+        print("The certificate did not match the hostname, or could not be otherwise validated")
+    
+    print("CADENA DE CERTIFICACION")
+    print("---------------------------")
+    print("ROOT CA")
+    print("SHA-1: ", cert_1.sha1.hex().upper())
+    print("SERIAL NUMBER: ", hex(cert_1.serial_number))
+    print("\n")
+
+    print("ROOT R1")
+    print("SHA-1:", cert_2.sha1.hex().upper())
+    print("SERIAL NUMBER: ", hex(cert_2.serial_number))
+    print("\n")
+
+    print("ROOT R2")
+    print("SHA-1:", cert_3.sha1.hex().upper())
+    print("SERIAL NUMBER: ", hex(cert_3.serial_number))
+    print("\n")
+    return cert_1, cert_2, cert_3
 
 
