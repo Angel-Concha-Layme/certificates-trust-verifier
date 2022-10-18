@@ -199,7 +199,7 @@ def get_trust_stores():
 
 #
 
-def has_certificate(host, port=443, timeout=10):
+def has_certificate(host, port=443, timeout=3):
     response = False
     socket.setdefaulttimeout(timeout)
     try:
