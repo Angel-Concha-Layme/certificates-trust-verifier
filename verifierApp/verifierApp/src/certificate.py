@@ -35,8 +35,11 @@ def get_certificate_chain(url):
 def generate_dict_chain(chain):
     """
     Funcion que genera un arreglo de diccionario con los certificados de la cadena de certificados
+    Retorna un arreglo de diccionarios vacio si la cadena de certificados es None (no tiene certificados)
     """
     dict_chain =[]
+    if chain is None:
+        return dict_chain
     for cert in chain:
         dict_cert = {
             "Subject" : cert.subject.native,
@@ -62,10 +65,17 @@ def security_level(dict_chain, trust_store):
     Funcion que valida si la fecha de expiracion del certificado raiz es mayor a la fecha actual: 
     por ejemplo si el certificado raiz expira el 2021-01-01 y la fecha actual es 2019-12-31 entonces el certificado no es valido
     """
+    
     security_level = 0
     is_sha1_in_trust_store = False
     is_valid_date = False
 
+    if dict_chain == []:
+        security_level = 1
+        return security_level
+
+
+    size_chain = len(dict_chain)
     for cert in trust_store:
         sha1 = ":".join(dict_chain[0]["SHA-1"][i:i+2] for i in range(0, len(dict_chain[0]["SHA-1"]), 3))
         if sha1 == cert["SHA-1"]:
@@ -73,32 +83,27 @@ def security_level(dict_chain, trust_store):
             validity_str = cert ["validity"] 
             validity = validity_str.split(" - ")
             if (dict_chain[0]["Not Valid After"].strftime("%Y-%m-%d")  ) >= (validity[0]):
-                print (dict_chain[0]["Not Valid After"].strftime("%Y-%m-%d"))
-                print (validity[0])
                 is_valid_date = True
 
     if (is_sha1_in_trust_store == True and is_valid_date == True):
         security_level = 3
 
-
-    # Si el certificado raiz es autofirmado entonces el nivel de seguridad es 2
-    if (dict_chain[0]["Subject"] == dict_chain[0]["Isuuer"]):
+    # si el sha1 del certificado raiz esta en el trust store pero la fecha de expiracion es menor a la fecha actual entonces el nivel de seguridad es 2
+    if (is_sha1_in_trust_store == True and is_valid_date == False):
         security_level = 2
 
-    # Si el certificado raiz no es autofirmado y no esta en el trust store entonces el nivel de seguridad es 1
-    if (dict_chain[0]["Subject"] != dict_chain[0]["Isuuer"] and is_sha1_in_trust_store == False):
+    # Si el certificado raiz es autofirmado entonces el nivel de seguridad es 1
+    if (dict_chain[0]["Subject"] == dict_chain[size_chain-1]["Isuuer"]):
         security_level = 1
-
-    # Si el certificado raiz no es autofirmado y no esta en el trust store y la fecha de expiracion es menor a la fecha actual
-    # entonces el nivel de seguridad es 0
-    if (dict_chain[0]["Subject"] != dict_chain[0]["Isuuer"] and is_sha1_in_trust_store == False and is_valid_date == False):
-        security_level = 0
 
     return security_level
 
 
-url = "https://www.youtube.com"
+url = "https://youtube.com"
 chain = get_certificate_chain(url)
 dict_chain = generate_dict_chain(chain)
 
+
 print("Security Level: ", security_level(dict_chain, mozilla_firefox))
+print("Security Level: ", security_level(dict_chain, google_chrome))
+print("Security Level: ", security_level(dict_chain, microsft_edge))
