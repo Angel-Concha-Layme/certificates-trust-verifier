@@ -5,6 +5,21 @@
 {% block content %}
 
 <h1 class="text-center my-5">Google Trust Store Certificates</h1>
+<div>
+  <h2>Total de certificados: <strong>{{ count }}</strong></h2>
+  <h3>Número de certificados por tipo de llave</h3>
+  <ul>
+    {% for alg in algs_list %}
+    <li>{{alg.0}} : {{alg.1}}</li>
+    {% endfor %}
+  </ul>
+  <h3>Número de llaves por tamaño (bits)</h3>
+  <ul>
+    {% for key_len in keys_lens %}
+    <li>{{key_len.0}} : {{key_len.1}}</li>
+    {% endfor %}
+  </ul>
+</div>
 
 <div class="table-responsive">
 <table class="table table-striped table-bordered table-trust-store mx-4 mb-5" style="width: 96.5%;">

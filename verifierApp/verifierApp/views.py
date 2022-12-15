@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 
 from .forms import urlForm
-from .src.verify import get_results, is_valid_URL, get_file_valid_urls, get_trust_stores
+from .src.verify import get_results, is_valid_URL, get_file_valid_urls, get_trust_stores, get_keys_algorithms_list, get_keys_length_list, sort_new_certs
 
 lista_urls = []
 lista_colors = []
@@ -147,7 +147,15 @@ def clean(request):
   return redirect('index')
 
 def google_trust_Store(request):
-  return render(request, "google_trust_store/google_trust_store.html", {'certificates': google_store})
+  algs_list = get_keys_algorithms_list(google_store)
+  keys_lens = get_keys_length_list(google_store)
+  return render(request, "google_trust_store/google_trust_store.html", {
+      'certificates': google_store,
+      'count': len(google_store),
+      'algs_list': algs_list,
+      'keys_lens': keys_lens,
+      'sort_certs': sort_new_certs
+  })
 
 def microsoft_trust_Store(request):
   return render(request, "microsoft_trust_store/microsoft_trust_store.html", {'certificates': microsoft_store})
