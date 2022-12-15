@@ -56,7 +56,7 @@ def generate_dict_chain(chain):
 microsft_edge, google_chrome, mozilla_firefox = get_trust_stores()
 
 
-def validate_chain(dict_chain, trust_store):
+def security_level(dict_chain, trust_store):
     """
     Funcion que valida que el sha1 raiz de la cadena de certificados este en el trust store (trust_store es un arreglo de diccionarios)
     Funcion que valida si la fecha de expiracion del certificado raiz es mayor a la fecha actual: 
@@ -80,5 +80,25 @@ def validate_chain(dict_chain, trust_store):
     if (is_sha1_in_trust_store == True and is_valid_date == True):
         security_level = 3
 
+
+    # Si el certificado raiz es autofirmado entonces el nivel de seguridad es 2
+    if (dict_chain[0]["Subject"] == dict_chain[0]["Isuuer"]):
+        security_level = 2
+
+    # Si el certificado raiz no es autofirmado y no esta en el trust store entonces el nivel de seguridad es 1
+    if (dict_chain[0]["Subject"] != dict_chain[0]["Isuuer"] and is_sha1_in_trust_store == False):
+        security_level = 1
+
+    # Si el certificado raiz no es autofirmado y no esta en el trust store y la fecha de expiracion es menor a la fecha actual
+    # entonces el nivel de seguridad es 0
+    if (dict_chain[0]["Subject"] != dict_chain[0]["Isuuer"] and is_sha1_in_trust_store == False and is_valid_date == False):
+        security_level = 0
+
     return security_level
 
+
+url = "https://www.youtube.com"
+chain = get_certificate_chain(url)
+dict_chain = generate_dict_chain(chain)
+
+print("Security Level: ", security_level(dict_chain, mozilla_firefox))
