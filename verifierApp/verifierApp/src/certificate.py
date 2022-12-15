@@ -105,12 +105,20 @@ def security_level(dict_chain, trust_store):
     return security_level
 
 
+
+
+def view_security_level(url):
+    """
+    Funcion que retorna el nivel de seguridad de un sitio web a partir de su URL en formato https://www.ejemplo.com
+    """
+    chain = get_certificate_chain(url)
+    dict_chain = generate_dict_chain(chain)
+    Mozila = security_level(dict_chain, mozilla_firefox)
+    Chrome = security_level(dict_chain, google_chrome)
+    Edge = security_level(dict_chain, microsft_edge)
+
+    return Mozila, Chrome, Edge
+
+
 url = "https://youtube.com"
-chain = get_certificate_chain(url)
-dict_chain = generate_dict_chain(chain)
-
-
-print("Security Level: ", security_level(dict_chain, mozilla_firefox))
-print("Security Level: ", security_level(dict_chain, google_chrome))
-print("Security Level: ", security_level(dict_chain, microsft_edge))
-
+view_security_level(url)
