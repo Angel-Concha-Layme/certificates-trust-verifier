@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 
 from .forms import urlForm
-from .src.verify import get_results, is_valid_URL, get_file_valid_urls, get_trust_stores, get_chain_Certificate_Validator, properties_ssl
+from .src.verify import get_results, is_valid_URL, get_file_valid_urls, get_trust_stores
 
 lista_urls = []
 lista_colors = []
