@@ -65,7 +65,6 @@ def security_level(dict_chain, trust_store):
     Funcion que valida si la fecha de expiracion del certificado raiz es mayor a la fecha actual: 
     por ejemplo si el certificado raiz expira el 2021-01-01 y la fecha actual es 2019-12-31 entonces el certificado no es valido
     """
-    
     security_level = 0
     is_sha1_in_trust_store = False
     is_valid_date = False
@@ -73,7 +72,6 @@ def security_level(dict_chain, trust_store):
     if dict_chain == []:
         security_level = 1
         return security_level
-
 
     size_chain = len(dict_chain)
     for cert in trust_store:
@@ -96,6 +94,14 @@ def security_level(dict_chain, trust_store):
     if (dict_chain[0]["Subject"] == dict_chain[size_chain-1]["Isuuer"]):
         security_level = 1
 
+    # Si el certificado raiz no esta en el trust store entonces el nivel de seguridad es 1
+    if (is_sha1_in_trust_store == False):
+        security_level = 1
+
+    # Si el certificado raiz es autofirmado y el sha1 del certificado raiz esta en el trust store entonces el nivel de seguridad es 2
+    if (dict_chain[0]["Subject"] == dict_chain[size_chain-1]["Isuuer"] and is_sha1_in_trust_store == True):
+        security_level = 2
+
     return security_level
 
 
@@ -107,3 +113,4 @@ dict_chain = generate_dict_chain(chain)
 print("Security Level: ", security_level(dict_chain, mozilla_firefox))
 print("Security Level: ", security_level(dict_chain, google_chrome))
 print("Security Level: ", security_level(dict_chain, microsft_edge))
+
