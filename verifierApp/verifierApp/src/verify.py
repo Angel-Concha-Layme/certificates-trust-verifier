@@ -218,7 +218,6 @@ def get_certificate(host, port=443, timeout=5):
 
 
 
-
 def get_sha1_certificate_root(url):
     session = tls.TLSSession(manual_validation=True)
     try:
@@ -333,116 +332,5 @@ def get_results(url):
   return results
 
 
-
-
-"""
-CADENA DE CERTIFICACION
-"""
-
-def get_chain_PEM_File(url, port):
-  dst = (url, port)
-  ctx = SSL.Context(SSL.SSLv23_METHOD)
-  s = socket.create_connection(dst)
-  s = SSL.Connection(ctx, s)
-  s.set_connect_state()
-  s.set_tlsext_host_name(str.encode(dst[0]))
-  s.sendall(str.encode('HEAD / HTTP/1.0\n\n'))
-  peerCertChain = s.get_verified_chain()
-  pemFile = ''
-  for cert in peerCertChain:
-      pemFile += crypto.dump_certificate(crypto.FILETYPE_PEM, cert).decode("utf-8")
-  return pemFile
-
-
-def get_chain_certificate(pem_format):
-    chain_certificate = []
-    certs = re.findall(r"-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----", pem_format, re.DOTALL)
-    for cert in certs:
-        cert = x509.load_pem_x509_certificate(cert.encode(), default_backend())
-
-        key_usage = get_key_usage(cert)
-        name = get_name(cert)
-        cert_dict = {
-            "Common name": name,
-            "valid_before": cert.not_valid_before.strftime("%Y-%m-%d"),
-            "valid_after": cert.not_valid_after.strftime("%Y-%m-%d"),
-            "Public Key Algorithm": cert.signature_hash_algorithm.name + ' - ' +str(cert.public_key().key_size) + ' bits',
-            "key usage": key_usage,
-            "SHA-1": (':'.join(cert.fingerprint(hashes.SHA1()).hex().upper()[i:i+2] for i in range(0, len(cert.fingerprint(hashes.SHA1()).hex().upper()), 2)))
-        }
-        chain_certificate.append(cert_dict)
-
-    return chain_certificate
-
-
-
-def get_certificate_chain(url):
-    url_proc = get_domain(url)
-    pemFile = get_chain_PEM_File(url_proc, 443)
-    chain_certificate = get_chain_certificate(pemFile)
-    print("CERTIFICATE CHAIN")
-    print (chain_certificate)
-    print ("CERTIFICATE CHAIN END")
-    return chain_certificate
-
-
-"""
-FIN DE CADENA DE CERTIFICACION
-"""
-
-"""
-def properties_ssl(url):
-    properties_ssl = get_certificate_chain(url)[0]
-    print(properties_ssl)
-    return properties_ssl
-"""
-
-
-def properties_ssl(url):
-  url_proc = get_domain(url)
-  pemFile =get_certificate(url_proc)
-  cert = read_certificate_pem(pemFile)
-  print("PROPIEDADES SSL")
-  print("---------------------------")
-  print(cert)
-  return cert
-
-
-def get_chain_Certificate_Validator(url):
-    if has_certificate(url)==True:
-
-      url=get_domain(url)
-      session = tls.TLSSession(manual_validation=True)
-      try:
-          connection = tls.TLSSocket(url, 443, session=session)
-      except Exception as e:
-          print("ppinch")
-
-      try:
-          validator = CertificateValidator(connection.certificate, connection.intermediates)
-          result = validator.validate_tls(connection.hostname)
-          cert_1 = result.__getitem__(0) # root
-          cert_2 = result.__getitem__(1)
-          cert_3 = result.__getitem__(2)
-      except (errors.PathValidationError):
-          print("The certificate did not match the hostname, or could not be otherwise validated")
-
-      print("CADENA DE CERTIFICACION")
-      print("---------------------------")
-      print("ROOT CA")
-      print("SHA-1: ", cert_1.sha1.hex().upper())
-      print("SERIAL NUMBER: ", hex(cert_1.serial_number))
-      print("\n")
-
-      print("ROOT R1")
-      print("SHA-1:", cert_2.sha1.hex().upper())
-      print("SERIAL NUMBER: ", hex(cert_2.serial_number))
-      print("\n")
-
-      print("ROOT R2")
-      print("SHA-1:", cert_3.sha1.hex().upper())
-      print("SERIAL NUMBER: ", hex(cert_3.serial_number))
-      print("\n")
-      return cert_1, cert_2, cert_3
 
 
