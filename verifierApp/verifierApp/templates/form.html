@@ -48,9 +48,11 @@
       <table class="table table-borderless my-3 mx-auto" style="width: 90%;">
           <tr>
               <th></th>
-              {% for browser in lista_browsers %}
-                  <th>{{browser }}    </th  > 
-              {% endfor %}
+              {% if lista_browsers %}
+                <th>{{lista_browsers.0 }} <img src="https://cdn.vox-cdn.com/thumbor/S_6JSDGmzwOkQ-b_do-S6ZRG-Ko=/0x0:1980x1320/1400x1400/filters:focal(990x660:991x661)/cdn.vox-cdn.com/uploads/chorus_asset/file/19341372/microsoftedgenewlogo.jpg" height="55" width="55" > </th >
+                <th>{{lista_browsers.1 }} <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/2048px-Google_Chrome_icon_%28February_2022%29.svg.png" height="55" width="55" ></th >
+                <th>{{lista_browsers.2 }} <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Firefox_logo%2C_2019.svg/1971px-Firefox_logo%2C_2019.svg.png" height="55" width="55" ></th >
+              {% endif %}
           </tr>
           {% for url, lista_browsers_colors, id in results %}
               <tr>
@@ -81,9 +83,9 @@
                       </svg>
 
                       <svg height="55" width="55">
-                        <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/> 
+                        <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
 
-                      
+
                     </svg>
                     {% elif browser_colors == 2 %}
                       <svg height="55" width="55">

@@ -43,7 +43,6 @@ def get_file_valid_urls(file_urls):
   Función que valida URLs del archivo y almacena solo aquellas que son válidas
   '''
   list_file_urls = []
-  list_file_colors = []
   list_file_ids = []
   counter = 1
   for url in file_urls:
@@ -54,15 +53,11 @@ def get_file_valid_urls(file_urls):
     if valid_url == True:
       list_file_urls.insert(0, url)
       list_file_ids.insert(0, counter)
-
-      # Funcion que verifica el nivel de confianza
-      lista_browsers_colors = get_results(url)
-      list_file_colors.insert(0, lista_browsers_colors)
     else:
       # Para mostrar mensajes de error
       print("URL #", counter, " inválida")
     counter += 1
-  return list_file_urls, list_file_colors, list_file_ids
+  return list_file_urls, list_file_ids
 
 def get_name(certificado):
     for i in certificado.subject.get_attributes_for_oid(x509.oid.NameOID.COMMON_NAME):
@@ -186,7 +181,7 @@ def structure_trust_store(certificates):
     certificates_list.append(certificate_dic)
   return certificates_list
 
-def get_trust_stores(): 
+def get_trust_stores():
   '''
   Función retorna los trusts stores de los 3 navegadores
   '''
@@ -377,7 +372,7 @@ def sort_new_certs(certs):
       if current_date.year - valid_before1.year > current_date.year - valid_before2.year:
         certs[j], certs[j+1] = certs[j+1], certs[j]
   return certs
-  
+
 
 def sort_old_certs(certs):
   current_date = datetime.now().date()
@@ -387,7 +382,7 @@ def sort_old_certs(certs):
       valid_before2 = datetime.strptime(certs[j+1]['validity'].split(' ')[0], "%Y-%m-%d")
       if current_date.year - valid_before1.year < current_date.year - valid_before2.year:
         certs[j], certs[j+1] = certs[j+1], certs[j]
-        
+
   return certs
 
 def sort_certs_expire(certs):

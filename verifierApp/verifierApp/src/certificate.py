@@ -88,7 +88,7 @@ def security_level(dict_chain, trust_store):
     """
     Funcion que valida que el sha1 raiz de la cadena de certificados este en el trust store (trust_store es un arreglo de diccionarios)
     Funcion que valida si la fecha de expiracion del certificado raiz es mayor a la fecha actual:
-    por ejemplo si el certificado raiz expira el 2021-01-01 y la fecha actual es 2019-12-31 entonces el certificado no es valido
+    por ejemplo si el certificado raiz expira el 2021-01-01 y la fecha actual es 2022-12-31 entonces el certificado no es valido
     """
     security_level = 0
     is_sha1_in_trust_store = False
