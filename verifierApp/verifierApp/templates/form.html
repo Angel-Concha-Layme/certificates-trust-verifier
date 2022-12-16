@@ -49,7 +49,7 @@
           <tr>
               <th></th>
               {% for browser in lista_browsers %}
-                  <th>{{browser}}</th>
+                  <th>{{browser }}    </th  > 
               {% endfor %}
           </tr>
           {% for url, lista_browsers_colors, id in results %}
@@ -73,6 +73,7 @@
                     {% elif browser_colors == 1 %}
                       <svg height="55" width="55">
                       <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="red"/>
+                      <image href="https://image.similarpng.com/very-thumbnail/2021/06/Warning-icon.-The-attention-icon.png" x="0" y="0" height="55" width="55"/>
                       </svg>
 
                       <svg height="55" width="55">
@@ -80,8 +81,10 @@
                       </svg>
 
                       <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
-                      </svg>
+                        <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/> 
+
+                      
+                    </svg>
                     {% elif browser_colors == 2 %}
                       <svg height="55" width="55">
                       <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
@@ -89,6 +92,7 @@
 
                       <svg height="55" width="55">
                       <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="yellow"/>
+                      <image href="https://cdn-icons-png.flaticon.com/512/6897/6897039.png" x="0" y="0" height="55" width="55"/>
                       </svg>
 
                       <svg height="55" width="55">
@@ -104,7 +108,8 @@
                       </svg>
 
                       <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="green"/>
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
+                      <image href="https://cdn-icons-png.flaticon.com/512/61/61457.png" x="2" y="5" height="40" width="50"/>
                       </svg>
                     {% endif %}
                   </td>
