@@ -25,4 +25,5 @@ urlpatterns = [
     path('google_trust_Store/', views.google_trust_Store,name='google_trust_Store'),
     path('microsoft_trust_Store/',views.microsoft_trust_Store,name='microsoft_trust_Store'),
     path('mozilla_trust_Store/',views.mozilla_trust_Store,name='mozilla_trust_Store'),
+    path('certificate_chain/<int:id>/',views.certificate_chain,name='certificate_chain'),
 ]

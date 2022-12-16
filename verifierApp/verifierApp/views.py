@@ -4,8 +4,10 @@ from django.contrib import messages
 
 from .forms import urlForm
 from .src.verify import get_results, is_valid_URL, get_file_valid_urls, get_trust_stores
+from .src.certificate import *
 
 lista_urls = []
+lista_ids = []
 lista_colors = []
 lista_browsers = ['Microsoft Edge', 'Google Chrome', 'Mozilla Firefox']
 display_button = True
@@ -19,6 +21,7 @@ microsoft_store, google_store, mozilla_store = get_trust_stores()
 def index(request):
   global lista_colors
   global lista_urls
+  global lista_ids
   global display_warning
   global display_error
   global display_success
@@ -40,12 +43,14 @@ def index(request):
         #properties_ssl(url_string)
         lista_urls.insert(0, url_string)
 
+        lista_ids.insert(0, len(lista_urls))
+
          # Funcion que verifica el nivel de confianza
         lista_browsers_colors = get_results(url_string)
         lista_colors.insert(0, lista_browsers_colors)
 
         # para mostrar el nivel de confianza con colores
-        results = zip(lista_urls, lista_colors)
+        results = zip(lista_urls, lista_colors, lista_ids)
         context = {'form': form,
                     'lista_browsers':lista_browsers,
                     'results':results,
@@ -62,7 +67,7 @@ def index(request):
                       'display': display_button}
         # si la lista de URLs no esta vacia
         else:
-          results = zip(lista_urls, lista_colors)
+          results = zip(lista_urls, lista_colors, lista_ids)
           context = {'form': form,
                       'lista_browsers':lista_browsers,
                       'results':results,
@@ -82,7 +87,7 @@ def index(request):
       display_success = False
 
     form = urlForm()
-    results = zip(lista_urls, lista_colors)
+    results = zip(lista_urls, lista_colors, lista_ids)
 
     # si la lista de URLs esta vacía
     if len(lista_urls) == 0:
@@ -98,6 +103,7 @@ def index(request):
     return render(request, 'form.html', context)
 
 def upload_file(request):
+  global lista_ids
   global lista_colors
   global lista_urls
   global display_button
@@ -114,11 +120,12 @@ def upload_file(request):
     file_urls = [ url.decode("utf-8").replace('\n','') for url in file_urls ]
 
     # obtenemos las urls válidas del archivo y sus colores respectivos
-    urls, colors = get_file_valid_urls(file_urls)
+    urls, colors, ids = get_file_valid_urls(file_urls)
 
     # agregamos a las listas resultantes
     lista_urls = urls + lista_urls
     lista_colors = colors + lista_colors
+    lista_ids = ids + lista_ids
 
     # verificamos si todas las URLs del archivo han sido procesadas
     # caso contrario mostramos mensajes de error al usuario
@@ -154,3 +161,14 @@ def microsoft_trust_Store(request):
 
 def mozilla_trust_Store(request):
   return render(request, "mozilla_trust_store/mozilla_trust_store.html", {'certificates': mozilla_store})
+
+def certificate_chain(request, id):
+  global lista_urls
+  if lista_urls:
+    url = lista_urls[::-1][id-1]
+    print(url, id)
+    chain = get_certificate_chain(url)
+    chain_dict = generate_dict_chain(chain)
+    return render(request, "chain.html", {"chain_dict":chain_dict, 'url':url})
+  else:
+    return redirect('index')

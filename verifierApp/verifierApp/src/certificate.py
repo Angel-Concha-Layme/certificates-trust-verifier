@@ -1,6 +1,6 @@
 from oscrypto import tls
 from certvalidator import CertificateValidator, errors
-from verify import get_trust_stores
+from .verify import get_trust_stores
 import re
 
 
@@ -40,7 +40,7 @@ def generate_dict_chain(chain):
     for cert in chain:
         dict_cert = {
             "Subject" : cert.subject.native,
-            "Isuuer" : cert.issuer.native,
+            "Issuer" : cert.issuer.native,
             "Serial Number" : hex(cert.serial_number).upper(),
             "Not Valid Before" : cert.not_valid_before,
             "Not Valid After" : cert.not_valid_after,
