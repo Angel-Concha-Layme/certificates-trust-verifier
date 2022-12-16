@@ -30,48 +30,35 @@ def index(request):
   if request.method == 'POST':
     form = urlForm(request.POST)
     if form.is_valid():
-      
+
       # Obteniendo URL como string
       url_string = form.cleaned_data['url']
 
       # validación de URL
-      valid_url, response = is_valid_URL(url_string)
+      # valid_url, response = is_valid_URL(url_string)
 
-      # si es válida y existe la URL
-      if valid_url == True:
-        #get_chain_Certificate_Validator(url_string)
-        #properties_ssl(url_string)
-        lista_urls.insert(0, url_string)
+      # si no es válida y existe la URL
+      #if valid_url != True:
+      #  # Para mostrar mensajes de error
+      #  messages.add_message(request, messages.ERROR, response)
 
-        lista_ids.insert(0, len(lista_urls))
 
-         # Funcion que verifica el nivel de confianza
-        lista_browsers_colors = get_results(url_string)
-        lista_colors.insert(0, lista_browsers_colors)
+      #get_chain_Certificate_Validator(url_string)
+      #properties_ssl(url_string)
+      lista_urls.insert(0, url_string)
 
-        # para mostrar el nivel de confianza con colores
-        results = zip(lista_urls, lista_colors, lista_ids)
-        context = {'form': form,
-                    'lista_browsers':lista_browsers,
-                    'results':results,
-                    'display': display_button}
-      # si no es válida y no existe la URL
-      else:
-        # Para mostrar mensajes de error
-        messages.add_message(request, messages.ERROR, response)
+      lista_ids.insert(0, len(lista_urls))
 
-        # si la lista de URLs esta vacia
-        if len(lista_urls) == 0:
-          display_button = False
-          context = {'form': form,
-                      'display': display_button}
-        # si la lista de URLs no esta vacia
-        else:
-          results = zip(lista_urls, lista_colors, lista_ids)
-          context = {'form': form,
-                      'lista_browsers':lista_browsers,
-                      'results':results,
-                      'display': display_button}
+      # Funcion que verifica el nivel de confianza
+      lista_browsers_colors = view_security_level(url_string)
+      lista_colors.insert(0, lista_browsers_colors)
+
+      # para mostrar el nivel de confianza con colores
+      results = zip(lista_urls, lista_colors, lista_ids)
+      context = {'form': form,
+                  'lista_browsers':lista_browsers,
+                  'results':results,
+                  'display': display_button}
       return render(request, 'form.html', context)
 
   elif request.method == 'GET':
@@ -112,7 +99,7 @@ def upload_file(request):
   global display_success
   global message_response
   if request.method == 'POST':
-  
+
     # leemos el archivo y lo obtenemos en bytes
     file_urls = request.FILES['file'].readlines()
 
