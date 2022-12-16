@@ -44,6 +44,7 @@ def get_file_valid_urls(file_urls):
   '''
   list_file_urls = []
   list_file_colors = []
+  list_file_ids = []
   counter = 1
   for url in file_urls:
     # validación de URL
@@ -52,6 +53,7 @@ def get_file_valid_urls(file_urls):
     # si es válida y existe la URL
     if valid_url == True:
       list_file_urls.insert(0, url)
+      list_file_ids.insert(0, counter)
 
       # Funcion que verifica el nivel de confianza
       lista_browsers_colors = get_results(url)
@@ -60,7 +62,7 @@ def get_file_valid_urls(file_urls):
       # Para mostrar mensajes de error
       print("URL #", counter, " inválida")
     counter += 1
-  return list_file_urls, list_file_colors
+  return list_file_urls, list_file_colors, list_file_ids
 
 def get_name(certificado):
     for i in certificado.subject.get_attributes_for_oid(x509.oid.NameOID.COMMON_NAME):

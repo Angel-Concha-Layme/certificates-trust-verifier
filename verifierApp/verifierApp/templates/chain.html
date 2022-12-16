@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<h1 class="text-center my-5">Cadena de Certificado</h1>
+
+<div class="mx-5" style="margin-bottom: 5rem;">
+    <p class="mx-5">Sitio web: <a href="{{ url }}" target="_blank">{{url}}</a></p>
+    <ul class="list-group mx-5 mb-5">
+        {% if chain_dict %}
+            {% for cert in chain_dict %}
+                <li class="list-group-item">
+                    {% if forloop.first %}
+                        <h3 class="text-center bg-dark text-white">Certificado Raiz</h3>
+                    {% elif forloop.last %}
+                        <h3 class="text-center bg-dark text-white">Certificado Hijo</h3>
+                    {% else  %}
+                        <h3 class="text-center bg-dark text-white">Certificado Intermedio</h3>
+                    {% endif %}
+
+                    <table class="table table-borderless table-striped">
+                        {% for key, value in cert.items %}
+                            <tr>
+                                <td><b>{{key}}:</b></td>
+                                {% if key == "Subject" or key == "Issuer"%}
+                                    <td>
+                                    {% for k,d in value.items %}
+                                        <li><b>{{k}}:</b> {{d}}</li>
+                                    {% endfor %}
+                                    </td>
+                                {% else %}
+                                    <td>{{value}}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+            {% endfor %}
+        {% endif %}
+    </ul>
+</div>
+
+<footer class="pt-3">
+  <button class="btn btn-primary mb-4"><a href="{% url 'index' %}" style="text-decoration: none; color: aliceblue;">Regresar</a></button>
+</footer>
+{% endblock %}
