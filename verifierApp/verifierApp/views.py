@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 
 from .forms import urlForm
-from .src.verify import get_results, is_valid_URL, get_file_valid_urls, get_trust_stores, get_keys_algorithms_list, get_keys_length_list, sort_new_certs
+from .src.verify import get_results, is_valid_URL, get_file_valid_urls, get_trust_stores, get_keys_algorithms_list, get_keys_length_list, sort_new_certs, sort_old_certs, sort_certs_expire
 
 lista_urls = []
 lista_colors = []
@@ -147,18 +147,60 @@ def clean(request):
   return redirect('index')
 
 def google_trust_Store(request):
+  global google_store
   algs_list = get_keys_algorithms_list(google_store)
   keys_lens = get_keys_length_list(google_store)
+  if request.method == 'POST':
+    opt = request.POST.get('sort')
+    if opt == 'new':
+      google_store = sort_new_certs(google_store)
+    elif opt == 'old':
+      google_store = sort_old_certs(google_store)
+    elif opt == 'expire':
+      google_store = sort_certs_expire(google_store)
   return render(request, "google_trust_store/google_trust_store.html", {
       'certificates': google_store,
       'count': len(google_store),
+      'algs_list': algs_list,
+      'keys_lens': keys_lens
+  })
+
+def microsoft_trust_Store(request):
+  global microsoft_store
+  algs_list = get_keys_algorithms_list(microsoft_store)
+  keys_lens = get_keys_length_list(microsoft_store)
+  if request.method == 'POST':
+    opt = request.POST.get('sort')
+    if opt == 'new':
+      microsoft_store = sort_new_certs(microsoft_store)
+    elif opt == 'old':
+      microsoft_store = sort_old_certs(microsoft_store)
+    elif opt == 'expire':
+      microsoft_store = sort_certs_expire(microsoft_store)
+  return render(request, "microsoft_trust_store/microsoft_trust_store.html", {
+      'certificates': microsoft_store,
+      'count': len(microsoft_store),
       'algs_list': algs_list,
       'keys_lens': keys_lens,
       'sort_certs': sort_new_certs
   })
 
-def microsoft_trust_Store(request):
-  return render(request, "microsoft_trust_store/microsoft_trust_store.html", {'certificates': microsoft_store})
-
 def mozilla_trust_Store(request):
-  return render(request, "mozilla_trust_store/mozilla_trust_store.html", {'certificates': mozilla_store})
+  global mozilla_store
+  algs_list = get_keys_algorithms_list(mozilla_store)
+  keys_lens = get_keys_length_list(mozilla_store)
+  if request.method == 'POST':
+    opt = request.POST.get('sort')
+    if opt == 'new':
+      mozilla_store = sort_new_certs(mozilla_store)
+    elif opt == 'old':
+      mozilla_store = sort_old_certs(mozilla_store)
+    elif opt == 'expire':
+      mozilla_store = sort_certs_expire(mozilla_store)
+  return render(request, "mozilla_trust_store/mozilla_trust_store.html", {
+      'certificates': mozilla_store,
+      'count': len(mozilla_store),
+      'algs_list': algs_list,
+      'keys_lens': keys_lens,
+      'sort_certs': sort_new_certs
+  })
