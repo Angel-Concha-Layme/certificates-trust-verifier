@@ -1,6 +1,6 @@
 from oscrypto import tls
 from certvalidator import CertificateValidator, errors
-from verify import get_trust_stores
+from .verify import get_trust_stores
 import re
 
 
