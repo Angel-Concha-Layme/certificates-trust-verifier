@@ -107,7 +107,12 @@ def upload_file(request):
     file_urls = [ url.decode("utf-8").replace('\n','') for url in file_urls ]
 
     # obtenemos las urls válidas del archivo y sus colores respectivos
-    urls, colors, ids = get_file_valid_urls(file_urls)
+    urls, ids = get_file_valid_urls(file_urls)
+
+    colors = []
+    for url in urls:
+      tupla = view_security_level(url)
+      colors.append(tupla)
 
     # agregamos a las listas resultantes
     lista_urls = urls + lista_urls
