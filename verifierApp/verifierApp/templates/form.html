@@ -39,89 +39,100 @@
   <div>
     {% if messages %}
       {% for message in messages %}
-          <div class="alert {{ message.tags }} alert-dismissible fade show mt-2" style="margin-left: 19.5%; margin-right: 19.5%;" role="alert">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
+        <div class="alert {{ message.tags }} alert-dismissible fade show mt-2" style="margin-left: 19.5%; margin-right: 19.5%;" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
       {% endfor %}
     {% endif %}
       <table class="table table-borderless my-3 mx-auto" style="width: 90%;">
           <tr>
-              <th></th>
-              {% if lista_browsers %}
-                <th>{{lista_browsers.0 }} <img src="https://cdn.vox-cdn.com/thumbor/S_6JSDGmzwOkQ-b_do-S6ZRG-Ko=/0x0:1980x1320/1400x1400/filters:focal(990x660:991x661)/cdn.vox-cdn.com/uploads/chorus_asset/file/19341372/microsoftedgenewlogo.jpg" height="55" width="55" > </th >
-                <th>{{lista_browsers.1 }} <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/2048px-Google_Chrome_icon_%28February_2022%29.svg.png" height="55" width="55" ></th >
-                <th>{{lista_browsers.2 }} <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Firefox_logo%2C_2019.svg/1971px-Firefox_logo%2C_2019.svg.png" height="55" width="55" ></th >
-              {% endif %}
+            <th></th>
+            {% if lista_browsers %}
+              <th>{{lista_browsers.0 }} <img src="https://cdn.vox-cdn.com/thumbor/S_6JSDGmzwOkQ-b_do-S6ZRG-Ko=/0x0:1980x1320/1400x1400/filters:focal(990x660:991x661)/cdn.vox-cdn.com/uploads/chorus_asset/file/19341372/microsoftedgenewlogo.jpg" height="30" width="30" > </th >
+              <th>{{lista_browsers.1 }} <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/2048px-Google_Chrome_icon_%28February_2022%29.svg.png" height="30" width="30" ></th >
+              <th>{{lista_browsers.2 }} <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Firefox_logo%2C_2019.svg/1971px-Firefox_logo%2C_2019.svg.png" height="30" width="30" ></th >
+            {% endif %}
           </tr>
           {% for url, lista_browsers_colors, id in results %}
-              <tr>
-                  <td class="text-start"><a href="{{ url }}" target="_blank">{{url}}</a></td>
+          <tr>
+              <td class="text-end" style="width: 30%;"><a href="{{ url }}" target="_blank" style="word-wrap: break-word;">{{url}}</a></td>
 
-                  {% for browser_colors in lista_browsers_colors %}
-                  <td>
-                    {% if browser_colors == 0 %}
-                      <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
-                      </svg>
+              {% for browser_colors in lista_browsers_colors %}
+              <td>
+                {% if browser_colors == 0 %}
+                  <svg height="30" width="30">
+                  <circle cx="15" cy="15" r="14" stroke="gray" stroke-width="1" fill="white"/>
+                  </svg>
 
-                      <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
-                      </svg>
+                  <svg height="30" width="30">
+                  <circle cx="15" cy="15" r="14" stroke="gray" stroke-width="1" fill="white"/>
+                  </svg>
 
-                      <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
-                      </svg>
-                    {% elif browser_colors == 1 %}
-                      <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="red"/>
-                      <image href="https://image.similarpng.com/very-thumbnail/2021/06/Warning-icon.-The-attention-icon.png" x="0" y="0" height="55" width="55"/>
-                      </svg>
+                  <svg height="30" width="30">
+                  <circle cx="15" cy="15" r="14" stroke="gray" stroke-width="1" fill="white"/>
+                  </svg>
 
-                      <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
-                      </svg>
+                  <svg height="55" width="55">
+                    <image href="https://image.similarpng.com/very-thumbnail/2021/06/Warning-icon.-The-attention-icon.png" x="0" y="7" height="40" width="50"/>
+                  </svg>
+                {% elif browser_colors == 1 %}
+                  <svg height="30" width="30">
+                  <circle cx="15" cy="15" r="14" stroke="red" stroke-width="1" fill="red"/>
+                  </svg>
 
-                      <svg height="55" width="55">
-                        <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
+                  <svg height="30" width="30">
+                  <circle cx="15" cy="15" r="14" stroke="red" stroke-width="1" fill="white"/>
+                  </svg>
 
+                  <svg height="30" width="30">
+                    <circle cx="15" cy="15" r="14" stroke="red" stroke-width="1" fill="white"/>
+                  </svg>
 
+                  <svg height="55" width="55">
+                    <image href="https://image.similarpng.com/very-thumbnail/2021/06/Warning-icon.-The-attention-icon.png" x="0" y="7" height="40" width="50"/>
+                  </svg>
+                {% elif browser_colors == 2 %}
+                  <svg height="30" width="30">
+                  <circle cx="15" cy="15" r="14" stroke="yellow" stroke-width="1" fill="#f7ff00"/>
+                  </svg>
+
+                  <svg height="30" width="30">
+                  <circle cx="15" cy="15" r="14" stroke="yellow" stroke-width="1" fill="#f7ff00"/>
+                  </svg>
+
+                  <svg height="30" width="30">
+                  <circle cx="15" cy="15" r="14" stroke="yellow" stroke-width="1" fill="white"/>
+                  </svg>
+
+                  <svg height="55" width="55">
+                    <image href="https://cdn-icons-png.flaticon.com/512/6897/6897039.png" x="0" y="7" height="40" width="50"/>
+                  </svg>
+                {% elif browser_colors == 3 %}
+                  <svg height="30" width="30">
+                  <circle cx="15" cy="15" r="14" stroke="#00ff04" stroke-width="1" fill="#00ff04"/>
+                  </svg>
+
+                  <svg height="30" width="30">
+                  <circle cx="15" cy="15" r="14" stroke="#00ff04" stroke-width="1" fill="#00ff04"/>
+                  </svg>
+
+                  <svg height="30" width="30">
+                  <circle cx="15" cy="15" r="14" stroke="#00ff04" stroke-width="1" fill="#00ff04"/>
+                  </svg>
+
+                  <svg height="55" width="55">
+                    <image href="https://thumbs.dreamstime.com/b/web-security-lock-icon-border-check-mark-web-security-lock-icon-115075563.jpg" x="2" y="7" height="40" width="50"/>
                     </svg>
-                    {% elif browser_colors == 2 %}
-                      <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
-                      </svg>
+                {% endif %}
+              </td>
+              {% endfor %}
 
-                      <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="yellow"/>
-                      <image href="https://cdn-icons-png.flaticon.com/512/6897/6897039.png" x="0" y="0" height="55" width="55"/>
-                      </svg>
+              {% if id %}
+                <td class="text-start"><a class="btn btn-info" href="{% url 'certificate_chain' id %}" role="button" style="color: white;">Ver cadena de certificado</a></td>
+              {% endif %}
 
-                      <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
-                      </svg>
-                    {% elif browser_colors == 3 %}
-                    <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
-                      </svg>
-
-                      <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
-                      </svg>
-
-                      <svg height="55" width="55">
-                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
-                      <image href="https://cdn-icons-png.flaticon.com/512/61/61457.png" x="2" y="5" height="40" width="50"/>
-                      </svg>
-                    {% endif %}
-                  </td>
-                  {% endfor %}
-
-                  {% if id %}
-                    <td class="text-start"><a class="btn btn-primary" href="{% url 'certificate_chain' id %}" role="button">Ver cadena de certificado</a></td>
-                  {% endif %}
-
-              </tr>
+          </tr>
           {% endfor %}
       </table>
   </div>

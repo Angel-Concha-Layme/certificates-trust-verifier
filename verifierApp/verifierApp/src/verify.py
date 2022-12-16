@@ -102,7 +102,7 @@ def get_key_usage(cert):
     try:
         cert.extensions.get_extension_for_class(x509.KeyUsage)
     except:
-        usage = 'UNDENTIFIED'
+        usage = 'UNIDENTIFIED'
         return usage
 
     if cert.extensions.get_extension_for_class(x509.KeyUsage).value.digital_signature == True:
