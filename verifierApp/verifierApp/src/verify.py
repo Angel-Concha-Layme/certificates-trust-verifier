@@ -373,9 +373,7 @@ def sort_new_certs(certs):
       valid_before1 = datetime.strptime(certs[j]['validity'].split(' ')[0], "%Y-%m-%d")
       valid_before2 = datetime.strptime(certs[j+1]['validity'].split(' ')[0], "%Y-%m-%d")
       if current_date.year - valid_before1.year > current_date.year - valid_before2.year:
-        temp = certs[j+1]
-        certs[j+1] = certs[j]
-        certs[j] = temp
+        certs[j], certs[j+1] = certs[j+1], certs[j]
   return certs
   
 
@@ -386,9 +384,8 @@ def sort_old_certs(certs):
       valid_before1 = datetime.strptime(certs[j]['validity'].split(' ')[0], "%Y-%m-%d")
       valid_before2 = datetime.strptime(certs[j+1]['validity'].split(' ')[0], "%Y-%m-%d")
       if current_date.year - valid_before1.year < current_date.year - valid_before2.year:
-        temp = certs[j+1]
-        certs[j+1] = certs[j]
-        certs[j] = temp
+        certs[j], certs[j+1] = certs[j+1], certs[j]
+        
   return certs
 
 def sort_certs_expire(certs):
@@ -398,7 +395,5 @@ def sort_certs_expire(certs):
       valid_after1 = datetime.strptime(certs[j]['validity'].split(' ')[-1], "%Y-%m-%d")
       valid_after2 = datetime.strptime(certs[j+1]['validity'].split(' ')[-1], "%Y-%m-%d")
       if  valid_after1.year - current_date.year > valid_after2.year - current_date.year:
-        temp = certs[j+1]
-        certs[j+1] = certs[j]
-        certs[j] = temp
+        certs[j], certs[j+1] = certs[j+1], certs[j]
   return certs
