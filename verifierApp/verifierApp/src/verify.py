@@ -9,6 +9,7 @@ from OpenSSL import SSL, crypto
 import socket
 import ssl
 import re
+from datetime import datetime
 
 def is_valid_URL(url):
   '''
@@ -334,5 +335,67 @@ def get_results(url):
   return results
 
 
+##########################
 
+def get_count_list(alist):
+  count_list = [[alist[0], 0]]
+  for x in alist:
+    col = [fila[0] for fila in count_list]
+    if x not in col:
+      count_list.append([x, 1])
 
+    else:
+      for i in range(len(count_list)):
+        if count_list[i][0] == x:
+          count_list[i][1] = count_list[i][1] + 1
+  return count_list
+
+def get_keys_algorithms_list(cert):
+  alg_list = []
+  for c in cert:
+    alg_list.append(c['Public Key Algorithm'])
+  algs_count = get_count_list(alg_list)
+  return algs_count
+
+def get_keys_length_list(cert):
+  alg_list = []
+  for c in cert:
+    cert_array = c['Public Key Algorithm'].split(' ')
+    if cert_array[-2] == 'EC':
+      alg_list.append(cert_array[-1])
+    else :
+      alg_list.append(cert_array[-2] + ' bits')
+  key_lens = get_count_list(alg_list)
+  return key_lens
+
+def sort_new_certs(certs):
+  current_date = datetime.now().date()
+  for i in range(len(certs) - 1):
+    for j in range(len(certs) - 1):
+      valid_before1 = datetime.strptime(certs[j]['validity'].split(' ')[0], "%Y-%m-%d")
+      valid_before2 = datetime.strptime(certs[j+1]['validity'].split(' ')[0], "%Y-%m-%d")
+      if current_date.year - valid_before1.year > current_date.year - valid_before2.year:
+        certs[j], certs[j+1] = certs[j+1], certs[j]
+  return certs
+  
+
+def sort_old_certs(certs):
+  current_date = datetime.now().date()
+  for i in range(len(certs) - 1):
+    for j in range(len(certs) - 1):
+      valid_before1 = datetime.strptime(certs[j]['validity'].split(' ')[0], "%Y-%m-%d")
+      valid_before2 = datetime.strptime(certs[j+1]['validity'].split(' ')[0], "%Y-%m-%d")
+      if current_date.year - valid_before1.year < current_date.year - valid_before2.year:
+        certs[j], certs[j+1] = certs[j+1], certs[j]
+        
+  return certs
+
+def sort_certs_expire(certs):
+  current_date = datetime.now().date()
+  for i in range(len(certs) - 1):
+    for j in range(len(certs) - 1):
+      valid_after1 = datetime.strptime(certs[j]['validity'].split(' ')[-1], "%Y-%m-%d")
+      valid_after2 = datetime.strptime(certs[j+1]['validity'].split(' ')[-1], "%Y-%m-%d")
+      if  valid_after1.year - current_date.year > valid_after2.year - current_date.year:
+        certs[j], certs[j+1] = certs[j+1], certs[j]
+  return certs
