@@ -58,18 +58,55 @@
 
                   {% for browser_colors in lista_browsers_colors %}
                   <td>
-                    <svg height="55" width="55">
-                    <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill={{ browser_colors.0 }} />
-                    </svg>
+                    {% if browser_colors == 0 %}
+                      <svg height="55" width="55">
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
+                      </svg>
 
-                    <svg height="55" width="55">
-                    <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill={{ browser_colors.1 }} />
-                    </svg>
+                      <svg height="55" width="55">
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
+                      </svg>
 
-                    <svg height="55" width="55">
-                    <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill={{ browser_colors.2 }} />
-                    </svg>
+                      <svg height="55" width="55">
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
+                      </svg>
+                    {% elif browser_colors == 1 %}
+                      <svg height="55" width="55">
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="red"/>
+                      </svg>
 
+                      <svg height="55" width="55">
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
+                      </svg>
+
+                      <svg height="55" width="55">
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
+                      </svg>
+                    {% elif browser_colors == 2 %}
+                      <svg height="55" width="55">
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
+                      </svg>
+
+                      <svg height="55" width="55">
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="yellow"/>
+                      </svg>
+
+                      <svg height="55" width="55">
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
+                      </svg>
+                    {% elif browser_colors == 3 %}
+                    <svg height="55" width="55">
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
+                      </svg>
+
+                      <svg height="55" width="55">
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="white"/>
+                      </svg>
+
+                      <svg height="55" width="55">
+                      <circle cx="27" cy="27" r="25" stroke="black" stroke-width="3" fill="green"/>
+                      </svg>
+                    {% endif %}
                   </td>
                   {% endfor %}
 

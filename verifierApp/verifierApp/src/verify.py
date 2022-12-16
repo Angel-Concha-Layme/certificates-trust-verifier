@@ -186,7 +186,7 @@ def structure_trust_store(certificates):
     certificates_list.append(certificate_dic)
   return certificates_list
 
-def get_trust_stores():
+def get_trust_stores(): 
   '''
   Función retorna los trusts stores de los 3 navegadores
   '''
