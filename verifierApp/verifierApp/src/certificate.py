@@ -1,6 +1,6 @@
 from oscrypto import tls
 from certvalidator import CertificateValidator, errors
-from verify import get_trust_stores
+from .verify import get_trust_stores
 import re
 import requests
 
@@ -144,5 +144,4 @@ def view_security_level(url):
         return Mozila, Chrome, Edge
     else:
         return 0, 0, 0
-
 
