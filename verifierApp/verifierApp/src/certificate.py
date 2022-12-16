@@ -2,6 +2,33 @@ from oscrypto import tls
 from certvalidator import CertificateValidator, errors
 from verify import get_trust_stores
 import re
+import requests
+
+def is_valid_URL(url):
+  '''
+  Función que valida la sintaxis y existencia de una URL en Internet
+  '''
+  is_valid = True
+  response = ""
+  try:
+    response = requests.get(url, timeout = 3) # 3 segundos
+    print("URL is valid and exists on the internet")
+  # Si la URL supera el tiempo de espera (3 segundos)
+  except requests.exceptions.Timeout:
+    response = "Timeout error"
+    print(response)
+    is_valid = False
+  # Si la URL no existe en Internet
+  except requests.ConnectionError:
+    response = "URL does not exist on Internet or invalid syntax"
+    print(response)
+    is_valid = False
+  # Si la URL no tiene la implementación del protocolo HTTPS
+  except requests.exceptions.RequestException:
+    response = "Invalid syntax"
+    print(response)
+    is_valid = False
+  return is_valid, response
 
 
 def process_url(url):
@@ -107,14 +134,15 @@ def view_security_level(url):
     """
     Funcion que retorna el nivel de seguridad de un sitio web a partir de su URL en formato https://www.ejemplo.com
     """
-    chain = get_certificate_chain(url)
-    dict_chain = generate_dict_chain(chain)
-    Mozila = security_level(dict_chain, mozilla_firefox)
-    Chrome = security_level(dict_chain, google_chrome)
-    Edge = security_level(dict_chain, microsft_edge)
+    is_valid, response = is_valid_URL(url)
+    if is_valid == True:
+        chain = get_certificate_chain(url)
+        dict_chain = generate_dict_chain(chain)
+        Mozila = security_level(dict_chain, mozilla_firefox)
+        Chrome = security_level(dict_chain, google_chrome)
+        Edge = security_level(dict_chain, microsft_edge)
+        return Mozila, Chrome, Edge
+    else:
+        return 0, 0, 0
 
-    print("Mozilla Firefox: ", Mozila)
-    print("Google Chrome: ", Chrome)
-    print("Microsoft Edge: ", Edge)
-    
-    return Mozila, Chrome, Edge
+
